@@ -1,0 +1,25 @@
+linters-settings:
+  govet:
+    enable-all: true
+    disable:
+      - fieldalignment
+  gocyclo:
+    min-complexity: 15
+  goimports:
+    local-prefixes: avito
+
+linters:
+  disable-all: true
+  enable:
+    - errcheck
+    - gosimple
+    - govet
+    - ineffassign
+    - staticcheck
+    - typecheck
+    - gocyclo
+    - goimports
+    - bodyclose
+
+issues:
+  exclude-use-default: false
