@@ -4,6 +4,7 @@ import (
 	"fmt"
 
 	"github.com/caarlos0/env/v11"
+	"github.com/joho/godotenv"
 )
 
 type Config struct {
@@ -12,10 +13,14 @@ type Config struct {
 	AppEnv   string `env:"APP_ENV" envDefault:"dev"`
 }
 
-func LoadConfig() (*Config, error) {
+func LoadConfig(path string) (*Config, error) {
+	err := godotenv.Load(path)
+	if err != nil {
+		return nil, fmt.Errorf("config.LoadConfig: %w", err)
+	}
 	var cfg Config
 
-	err := env.Parse(&cfg)
+	err = env.Parse(&cfg)
 	if err != nil {
 		return nil, fmt.Errorf("config.LoadConfig failed to parse config: %w", err)
 	}
