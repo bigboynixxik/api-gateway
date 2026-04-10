@@ -1,30 +1,139 @@
 package app
 
 import (
+	"api-gateway/internal/transport/handlers"
+	"api-gateway/internal/transport/interceptor"
+	auth "api-gateway/pkg/api/auth/v1"
+	api "api-gateway/pkg/api/v1"
 	"api-gateway/pkg/closer"
 	"api-gateway/pkg/config"
+	"api-gateway/pkg/logger"
 	"context"
+	"errors"
 	"fmt"
 	"log/slog"
 	"net/http"
+	"os"
+	"os/signal"
+	"syscall"
+	"time"
 
-	"google.golang.org/grpc"
+	googleGrpc "google.golang.org/grpc"
+	"google.golang.org/grpc/credentials/insecure"
 )
 
 type App struct {
-	grpcServer *grpc.Server
-	httpServer *http.Server
-	grpcPort   string
-	httpPort   string
-	logs       *slog.Logger
-	closer     *closer.Closer
+	eventClient      api.EventServiceClient
+	authClient       auth.AuthServiceClient
+	httpServer       *http.Server
+	eventServiceAddr string
+	authServiceAddr  string
+	httpPort         string
+	logs             *slog.Logger
+	closer           *closer.Closer
 }
 
 func NewApp(ctx context.Context) (*App, error) {
 	cfg, err := config.LoadConfig(".env")
 	if err != nil {
-		return nil, err
+		return nil, fmt.Errorf("app.New failed to load config: %w", err)
 	}
-	fmt.Println(cfg.AppEnv, cfg.HTTPPort, cfg.GRPCPort)
-	return nil, nil
+
+	logger.Setup(cfg.AppEnv)
+	logs := logger.With("service", "api-gateway")
+	logs.Info("initializing layers",
+		"env", cfg.AppEnv,
+		"HTTPPort", cfg.HTTPPort,
+		"Event service addr", cfg.EventServiceAddr,
+		"Auth service addr", cfg.AuthServiceAddr)
+	ctx = logger.WithContext(ctx, logs)
+
+	eventConn, err := googleGrpc.NewClient(cfg.EventServiceAddr,
+		googleGrpc.WithTransportCredentials(insecure.NewCredentials()),
+		googleGrpc.WithUnaryInterceptor(interceptor.LoggingClientInterceptor(logs)))
+	if err != nil {
+		return nil, fmt.Errorf("app.New unable to connect to gRPC server: %w", err)
+	}
+
+	eventClient := api.NewEventServiceClient(eventConn)
+
+	authConn, err := googleGrpc.NewClient(cfg.AuthServiceAddr,
+		googleGrpc.WithTransportCredentials(insecure.NewCredentials()),
+		googleGrpc.WithUnaryInterceptor(interceptor.LoggingClientInterceptor(logs)))
+	if err != nil {
+		return nil, fmt.Errorf("app.New unable to connect to gRPC server: %w", err)
+	}
+	authClient := auth.NewAuthServiceClient(authConn)
+
+	mux := http.NewServeMux()
+
+	mux.HandleFunc("GET /_info", handlers.InfoHandler)
+
+	httpServer := &http.Server{
+		Addr:    ":" + cfg.HTTPPort,
+		Handler: mux,
+	}
+
+	cl := closer.New()
+
+	cl.Add(func(ctx context.Context) error {
+		slog.Info("closing event service connection")
+		return eventConn.Close()
+	})
+
+	cl.Add(func(ctx context.Context) error {
+		slog.Info("closing auth service connection")
+		return authConn.Close()
+	})
+
+	cl.Add(func(ctx context.Context) error {
+		slog.Info("closing http server")
+		return httpServer.Shutdown(ctx)
+	})
+
+	return &App{
+		eventClient:      eventClient,
+		authClient:       authClient,
+		httpServer:       httpServer,
+		httpPort:         cfg.HTTPPort,
+		eventServiceAddr: cfg.EventServiceAddr,
+		authServiceAddr:  cfg.AuthServiceAddr,
+		logs:             logs,
+		closer:           cl,
+	}, nil
+}
+
+func (a *App) Run() {
+	errCh := make(chan error)
+
+	go func() {
+		a.logs.Info("starting http server")
+		if err := a.httpServer.ListenAndServe(); err != nil && !errors.Is(err, http.ErrServerClosed) {
+			errCh <- err
+		}
+	}()
+
+	a.logs.Info("App.Run starting server", "port", a.httpPort)
+
+	quit := make(chan os.Signal, 1)
+
+	signal.Notify(quit, syscall.SIGINT, syscall.SIGTERM)
+
+	select {
+	case err := <-errCh:
+		a.logs.Error("app.run server startup failed", "error", err)
+	case sig := <-quit:
+		a.logs.Info("app.run server shutdown", "signal", sig)
+	}
+
+	a.logs.Info("shutting down servers")
+
+	shutdownCtx, shutdownCancel := context.WithTimeout(context.Background(), 5*time.Second)
+	defer shutdownCancel()
+
+	if err := a.closer.Close(shutdownCtx); err != nil {
+		a.logs.Error("close server shutdown failed", "error", err)
+	}
+
+	fmt.Println("Server stopped")
 }

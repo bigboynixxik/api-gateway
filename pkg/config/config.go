@@ -8,9 +8,10 @@ import (
 )
 
 type Config struct {
-	HTTPPort string `env:"HTTP_PORT" envDefault:"8080"`
-	GRPCPort string `env:"GRPC_PORT" envDefault:"50051"`
-	AppEnv   string `env:"APP_ENV" envDefault:"dev"`
+	HTTPPort         string `env:"HTTP_PORT" envDefault:"8080"`
+	AppEnv           string `env:"APP_ENV" envDefault:"dev"`
+	EventServiceAddr string `env:"EVENT_SERVICE_ADDR" envDefault:":50051"`
+	AuthServiceAddr  string `env:"AUTH_SERVICE_ADDR" envDefault:":50052"`
 }
 
 func LoadConfig(path string) (*Config, error) {
