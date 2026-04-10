@@ -2,7 +2,9 @@ package app
 
 import (
 	"api-gateway/internal/transport/handlers"
+	"api-gateway/internal/transport/handlers/event"
 	"api-gateway/internal/transport/interceptor"
+	"api-gateway/internal/transport/middleware"
 	auth "api-gateway/pkg/api/auth/v1"
 	api "api-gateway/pkg/api/v1"
 	"api-gateway/pkg/closer"
@@ -65,9 +67,15 @@ func NewApp(ctx context.Context) (*App, error) {
 	}
 	authClient := auth.NewAuthServiceClient(authConn)
 
+	authMW := middleware.NewAuthMiddleware(authClient, cfg.JWTSecret)
+
+	eventHandler := event.NewHandlerEvent(eventClient)
+
 	mux := http.NewServeMux()
 
 	mux.HandleFunc("GET /_info", handlers.InfoHandler)
+
+	mux.HandleFunc("POST /v1/event/create", authMW.AuthMiddleware(eventHandler.CreateEvent))
 
 	httpServer := &http.Server{
 		Addr:    ":" + cfg.HTTPPort,

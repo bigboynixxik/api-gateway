@@ -12,6 +12,7 @@ type Config struct {
 	AppEnv           string `env:"APP_ENV" envDefault:"dev"`
 	EventServiceAddr string `env:"EVENT_SERVICE_ADDR" envDefault:":50051"`
 	AuthServiceAddr  string `env:"AUTH_SERVICE_ADDR" envDefault:":50052"`
+	JWTSecret        string `env:"JWT_SECRET"`
 }
 
 func LoadConfig(path string) (*Config, error) {
