@@ -1,12 +1,20 @@
 package middleware
 
 import (
+	auth "api-gateway/pkg/api/auth/v1"
 	"api-gateway/pkg/response"
 	"net/http"
 	"strings"
 )
 
-func AuthMiddleware(next http.Handler) http.HandlerFunc {
+type authMiddleware struct {
+	authService auth.AuthServiceClient
+}
+func NewAuthMiddleware(authService auth.AuthServiceClient) *authMiddleware {
+	return &authMiddleware{authService: authService}
+}
+
+func (am *authMiddleware) AuthMiddleware(next http.Handler) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		header := r.Header.Get("Authorization")
 		if header == "" || !strings.HasPrefix(header, "Bearer ") {

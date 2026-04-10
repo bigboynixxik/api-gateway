@@ -1,7 +1,6 @@
 package event
 
 import (
-	auth "api-gateway/pkg/api/auth/v1"
 	api "api-gateway/pkg/api/v1"
 	"api-gateway/pkg/logger"
 	"api-gateway/pkg/response"
