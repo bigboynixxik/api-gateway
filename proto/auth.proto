@@ -10,6 +10,27 @@ service AuthService {
   rpc Register(RegisterRequest) returns (RegisterResponse);
   // Вход по email и паролю
   rpc Login(LoginRequest) returns (LoginResponse);
+  //Получение информации о пользователе
+  rpc GetUsersInfo(GetUsersInfoRequest) returns (GetUsersInfoResponse);
+}
+
+// Информация об юзере
+message UserInfo {
+  string id = 1;
+  string name = 2;
+  string login = 3;
+}
+
+// Запрос на получение информации о пользователе
+message GetUsersInfoRequest {
+  // Массив ID
+  repeated string user_ids = 1;
+}
+
+// Ответ на запрос на получение информации о пользователе
+message GetUsersInfoResponse {
+  // Возвращаем map, где ключ - user_id.
+  map<string, UserInfo> users = 1;
 }
 
 // Запрос на регистрацию пользователя

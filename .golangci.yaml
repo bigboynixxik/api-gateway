@@ -6,7 +6,7 @@ linters-settings:
   gocyclo:
     min-complexity: 15
   goimports:
-    local-prefixes: avito
+    local-prefixes: api-gateway
 
 linters:
   disable-all: true

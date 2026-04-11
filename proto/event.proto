@@ -83,14 +83,13 @@ message EventInfo {
 }
 
 // Информация об участнике мероприятия
+// upd: убрали поле name
 message ParticipantInfo {
   string participant_id = 1;
-  // Имя
-  string name = 2;
   // Роль в мероприятии
-  string role = 3;
+  string role = 2;
   // Участие в мероприятии ('invited', 'confirmed', 'declined', 'maybe')
-  string status = 4;
+  string status = 3;
 }
 
 // Информация о предмете в чеклисте
