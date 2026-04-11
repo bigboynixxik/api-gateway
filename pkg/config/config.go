@@ -10,8 +10,8 @@ import (
 type Config struct {
 	HTTPPort         string `env:"HTTP_PORT" envDefault:"8080"`
 	AppEnv           string `env:"APP_ENV" envDefault:"dev"`
-	EventServiceAddr string `env:"EVENT_SERVICE_ADDR" envDefault:":50051"`
-	AuthServiceAddr  string `env:"AUTH_SERVICE_ADDR" envDefault:":50052"`
+	EventServiceAddr string `env:"EVENT_SERVICE_ADDR" envDefault:"localhost:50051"`
+	AuthServiceAddr  string `env:"AUTH_SERVICE_ADDR" envDefault:"localhost:50052"`
 	JWTSecret        string `env:"JWT_SECRET"`
 }
 

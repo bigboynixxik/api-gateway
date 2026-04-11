@@ -122,15 +122,14 @@ func (x *EventInfo) GetIsPrivate() bool {
 }
 
 // Информация об участнике мероприятия
+// upd: убрали поле name
 type ParticipantInfo struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
 	ParticipantId string                 `protobuf:"bytes,1,opt,name=participant_id,json=participantId,proto3" json:"participant_id,omitempty"`
-	// Имя
-	Name string `protobuf:"bytes,2,opt,name=name,proto3" json:"name,omitempty"`
 	// Роль в мероприятии
-	Role string `protobuf:"bytes,3,opt,name=role,proto3" json:"role,omitempty"`
+	Role string `protobuf:"bytes,2,opt,name=role,proto3" json:"role,omitempty"`
 	// Участие в мероприятии ('invited', 'confirmed', 'declined', 'maybe')
-	Status        string `protobuf:"bytes,4,opt,name=status,proto3" json:"status,omitempty"`
+	Status        string `protobuf:"bytes,3,opt,name=status,proto3" json:"status,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -168,13 +167,6 @@ func (*ParticipantInfo) Descriptor() ([]byte, []int) {
 func (x *ParticipantInfo) GetParticipantId() string {
 	if x != nil {
 		return x.ParticipantId
-	}
-	return ""
-}
-
-func (x *ParticipantInfo) GetName() string {
-	if x != nil {
-		return x.Name
 	}
 	return ""
 }
@@ -1842,12 +1834,11 @@ const file_event_proto_rawDesc = "" +
 	"\bduration\x18\x05 \x01(\x05R\bduration\x12\x16\n" +
 	"\x06status\x18\x06 \x01(\tR\x06status\x12\x1d\n" +
 	"\n" +
-	"is_private\x18\a \x01(\bR\tisPrivate\"x\n" +
+	"is_private\x18\a \x01(\bR\tisPrivate\"d\n" +
 	"\x0fParticipantInfo\x12%\n" +
 	"\x0eparticipant_id\x18\x01 \x01(\tR\rparticipantId\x12\x12\n" +
-	"\x04name\x18\x02 \x01(\tR\x04name\x12\x12\n" +
-	"\x04role\x18\x03 \x01(\tR\x04role\x12\x16\n" +
-	"\x06status\x18\x04 \x01(\tR\x06status\"\xcf\x01\n" +
+	"\x04role\x18\x02 \x01(\tR\x04role\x12\x16\n" +
+	"\x06status\x18\x03 \x01(\tR\x06status\"\xcf\x01\n" +
 	"\x11ChecklistItemInfo\x12\x0e\n" +
 	"\x02id\x18\x01 \x01(\tR\x02id\x12\x14\n" +
 	"\x05title\x18\x02 \x01(\tR\x05title\x12\x1a\n" +
