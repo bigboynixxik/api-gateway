@@ -19,9 +19,10 @@ import (
 const _ = grpc.SupportPackageIsVersion9
 
 const (
-	AuthService_Register_FullMethodName     = "/auth.AuthService/Register"
-	AuthService_Login_FullMethodName        = "/auth.AuthService/Login"
-	AuthService_GetUsersInfo_FullMethodName = "/auth.AuthService/GetUsersInfo"
+	AuthService_Register_FullMethodName           = "/auth.AuthService/Register"
+	AuthService_Login_FullMethodName              = "/auth.AuthService/Login"
+	AuthService_GetUsersInfo_FullMethodName       = "/auth.AuthService/GetUsersInfo"
+	AuthService_GetUserInfoByLogin_FullMethodName = "/auth.AuthService/GetUserInfoByLogin"
 )
 
 // AuthServiceClient is the client API for AuthService service.
@@ -34,8 +35,10 @@ type AuthServiceClient interface {
 	Register(ctx context.Context, in *RegisterRequest, opts ...grpc.CallOption) (*RegisterResponse, error)
 	// Вход по email и паролю
 	Login(ctx context.Context, in *LoginRequest, opts ...grpc.CallOption) (*LoginResponse, error)
-	// Получение информации о пользователе
+	// Получение информации о пользователях
 	GetUsersInfo(ctx context.Context, in *GetUsersInfoRequest, opts ...grpc.CallOption) (*GetUsersInfoResponse, error)
+	// Получение информации о пользователе по логину
+	GetUserInfoByLogin(ctx context.Context, in *GetUserInfoByLoginRequest, opts ...grpc.CallOption) (*UserInfo, error)
 }
 
 type authServiceClient struct {
@@ -76,6 +79,16 @@ func (c *authServiceClient) GetUsersInfo(ctx context.Context, in *GetUsersInfoRe
 	return out, nil
 }
 
+func (c *authServiceClient) GetUserInfoByLogin(ctx context.Context, in *GetUserInfoByLoginRequest, opts ...grpc.CallOption) (*UserInfo, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(UserInfo)
+	err := c.cc.Invoke(ctx, AuthService_GetUserInfoByLogin_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
 // AuthServiceServer is the server API for AuthService service.
 // All implementations must embed UnimplementedAuthServiceServer
 // for forward compatibility.
@@ -86,8 +99,10 @@ type AuthServiceServer interface {
 	Register(context.Context, *RegisterRequest) (*RegisterResponse, error)
 	// Вход по email и паролю
 	Login(context.Context, *LoginRequest) (*LoginResponse, error)
-	// Получение информации о пользователе
+	// Получение информации о пользователях
 	GetUsersInfo(context.Context, *GetUsersInfoRequest) (*GetUsersInfoResponse, error)
+	// Получение информации о пользователе по логину
+	GetUserInfoByLogin(context.Context, *GetUserInfoByLoginRequest) (*UserInfo, error)
 	mustEmbedUnimplementedAuthServiceServer()
 }
 
@@ -106,6 +121,9 @@ func (UnimplementedAuthServiceServer) Login(context.Context, *LoginRequest) (*Lo
 }
 func (UnimplementedAuthServiceServer) GetUsersInfo(context.Context, *GetUsersInfoRequest) (*GetUsersInfoResponse, error) {
 	return nil, status.Error(codes.Unimplemented, "method GetUsersInfo not implemented")
+}
+func (UnimplementedAuthServiceServer) GetUserInfoByLogin(context.Context, *GetUserInfoByLoginRequest) (*UserInfo, error) {
+	return nil, status.Error(codes.Unimplemented, "method GetUserInfoByLogin not implemented")
 }
 func (UnimplementedAuthServiceServer) mustEmbedUnimplementedAuthServiceServer() {}
 func (UnimplementedAuthServiceServer) testEmbeddedByValue()                     {}
@@ -182,6 +200,24 @@ func _AuthService_GetUsersInfo_Handler(srv interface{}, ctx context.Context, dec
 	return interceptor(ctx, in, info, handler)
 }
 
+func _AuthService_GetUserInfoByLogin_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(GetUserInfoByLoginRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(AuthServiceServer).GetUserInfoByLogin(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: AuthService_GetUserInfoByLogin_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(AuthServiceServer).GetUserInfoByLogin(ctx, req.(*GetUserInfoByLoginRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
 // AuthService_ServiceDesc is the grpc.ServiceDesc for AuthService service.
 // It's only intended for direct use with grpc.RegisterService,
 // and not to be introspected or modified (even as a copy)
@@ -200,6 +236,10 @@ var AuthService_ServiceDesc = grpc.ServiceDesc{
 		{
 			MethodName: "GetUsersInfo",
 			Handler:    _AuthService_GetUsersInfo_Handler,
+		},
+		{
+			MethodName: "GetUserInfoByLogin",
+			Handler:    _AuthService_GetUserInfoByLogin_Handler,
 		},
 	},
 	Streams:  []grpc.StreamDesc{},

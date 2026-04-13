@@ -10,8 +10,10 @@ service AuthService {
   rpc Register(RegisterRequest) returns (RegisterResponse);
   // Вход по email и паролю
   rpc Login(LoginRequest) returns (LoginResponse);
-  //Получение информации о пользователе
+  //Получение информации о пользователях
   rpc GetUsersInfo(GetUsersInfoRequest) returns (GetUsersInfoResponse);
+  // Получение информации о пользователе по логину
+  rpc GetUserInfoByLogin(GetUserInfoByLoginRequest) returns (UserInfo);
 }
 
 // Информация об юзере
@@ -57,4 +59,8 @@ message LoginRequest {
 message LoginResponse {
   // JWT-токен
   string access_token = 1;
+}
+
+message GetUserInfoByLoginRequest {
+  string login = 1;
 }
