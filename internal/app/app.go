@@ -79,6 +79,8 @@ func NewApp(ctx context.Context) (*App, error) {
 
 	mux.HandleFunc("POST /login", authHandler.Login)
 	mux.HandleFunc("POST /register", authHandler.Register)
+	mux.HandleFunc("GET /users/{login}", authHandler.GetUserInfoByLogin)
+	mux.HandleFunc("POST /users/info", authHandler.GetUsersInfo)
 
 	mux.HandleFunc("POST /v1/event/create", authMW.AuthMiddleware(eventHandler.CreateEvent))
 

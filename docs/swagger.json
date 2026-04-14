@@ -1,0 +1,317 @@
+{
+    "swagger": "2.0",
+    "info": {
+        "description": "API для сервиса мероприятий Eventify",
+        "title": "Eventify API Gateway",
+        "contact": {},
+        "version": "1.0"
+    },
+    "host": "localhost:8080",
+    "basePath": "/",
+    "paths": {
+        "/login": {
+            "post": {
+                "description": "Принимает email и пароль, возвращает JWT токен",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "auth"
+                ],
+                "summary": "Авторизация пользователя",
+                "parameters": [
+                    {
+                        "description": "Данные для входа",
+                        "name": "request",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/internal_transport_handlers_authorization.LoginDTO"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "вернёт access_token",
+                        "schema": {
+                            "$ref": "#/definitions/api-gateway_pkg_api_auth_v1.LoginResponse"
+                        }
+                    },
+                    "400": {
+                        "description": "Неверный формат запроса",
+                        "schema": {
+                            "$ref": "#/definitions/api-gateway_pkg_response.ErrorResponse"
+                        }
+                    },
+                    "401": {
+                        "description": "Неверный логин или пароль",
+                        "schema": {
+                            "$ref": "#/definitions/api-gateway_pkg_response.ErrorResponse"
+                        }
+                    },
+                    "500": {
+                        "description": "Внутренняя ошибка сервера",
+                        "schema": {
+                            "$ref": "#/definitions/api-gateway_pkg_response.ErrorResponse"
+                        }
+                    }
+                }
+            }
+        },
+        "/register": {
+            "post": {
+                "description": "Создает нового пользователя и возвращает JWT токен",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "auth"
+                ],
+                "summary": "Регистрация пользователя",
+                "parameters": [
+                    {
+                        "description": "Данные для регистрации",
+                        "name": "request",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/internal_transport_handlers_authorization.RegisterDTO"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "вернет access_token",
+                        "schema": {
+                            "$ref": "#/definitions/api-gateway_pkg_api_auth_v1.RegisterResponse"
+                        }
+                    },
+                    "400": {
+                        "description": "Неверный формат запроса",
+                        "schema": {
+                            "$ref": "#/definitions/api-gateway_pkg_response.ErrorResponse"
+                        }
+                    },
+                    "409": {
+                        "description": "Пользователь с таким email или логином уже существует",
+                        "schema": {
+                            "$ref": "#/definitions/api-gateway_pkg_response.ErrorResponse"
+                        }
+                    },
+                    "500": {
+                        "description": "Внутренняя ошибка сервера",
+                        "schema": {
+                            "$ref": "#/definitions/api-gateway_pkg_response.ErrorResponse"
+                        }
+                    }
+                }
+            }
+        },
+        "/users/info": {
+            "post": {
+                "description": "Возвращает словарь с данными пользователей по переданному массиву ID (используется POST для обхода лимитов URL)",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "users"
+                ],
+                "summary": "Получение информации о группе пользователей",
+                "parameters": [
+                    {
+                        "description": "Массив UUID пользователей",
+                        "name": "request",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/internal_transport_handlers_authorization.GetUsersInfoDTO"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Словарь пользователей (ключ - ID)",
+                        "schema": {
+                            "$ref": "#/definitions/api-gateway_pkg_api_auth_v1.GetUsersInfoResponse"
+                        }
+                    },
+                    "400": {
+                        "description": "Неверный формат запроса",
+                        "schema": {
+                            "$ref": "#/definitions/api-gateway_pkg_response.ErrorResponse"
+                        }
+                    },
+                    "404": {
+                        "description": "Пользователи не найдены",
+                        "schema": {
+                            "$ref": "#/definitions/api-gateway_pkg_response.ErrorResponse"
+                        }
+                    },
+                    "500": {
+                        "description": "Внутренняя ошибка сервера",
+                        "schema": {
+                            "$ref": "#/definitions/api-gateway_pkg_response.ErrorResponse"
+                        }
+                    }
+                }
+            }
+        },
+        "/users/{login}": {
+            "get": {
+                "description": "Ищет пользователя по уникальному логину (никнейму) и возвращает его публичные данные",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "users"
+                ],
+                "summary": "Получение публичного профиля пользователя",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Логин пользователя (без @)",
+                        "name": "login",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Публичные данные пользователя",
+                        "schema": {
+                            "$ref": "#/definitions/api-gateway_pkg_api_auth_v1.UserInfo"
+                        }
+                    },
+                    "400": {
+                        "description": "Логин не передан",
+                        "schema": {
+                            "$ref": "#/definitions/api-gateway_pkg_response.ErrorResponse"
+                        }
+                    },
+                    "404": {
+                        "description": "Пользователь не найден",
+                        "schema": {
+                            "$ref": "#/definitions/api-gateway_pkg_response.ErrorResponse"
+                        }
+                    },
+                    "500": {
+                        "description": "Внутренняя ошибка сервера",
+                        "schema": {
+                            "$ref": "#/definitions/api-gateway_pkg_response.ErrorResponse"
+                        }
+                    }
+                }
+            }
+        }
+    },
+    "definitions": {
+        "api-gateway_pkg_api_auth_v1.GetUsersInfoResponse": {
+            "type": "object",
+            "properties": {
+                "users": {
+                    "description": "Возвращаем map, где ключ - user_id.",
+                    "type": "object",
+                    "additionalProperties": {
+                        "$ref": "#/definitions/api-gateway_pkg_api_auth_v1.UserInfo"
+                    }
+                }
+            }
+        },
+        "api-gateway_pkg_api_auth_v1.LoginResponse": {
+            "type": "object",
+            "properties": {
+                "access_token": {
+                    "description": "JWT-токен",
+                    "type": "string"
+                }
+            }
+        },
+        "api-gateway_pkg_api_auth_v1.RegisterResponse": {
+            "type": "object",
+            "properties": {
+                "access_token": {
+                    "description": "JWT-токен",
+                    "type": "string"
+                }
+            }
+        },
+        "api-gateway_pkg_api_auth_v1.UserInfo": {
+            "type": "object",
+            "properties": {
+                "id": {
+                    "type": "string"
+                },
+                "login": {
+                    "type": "string"
+                },
+                "name": {
+                    "type": "string"
+                }
+            }
+        },
+        "api-gateway_pkg_response.ErrorResponse": {
+            "type": "object",
+            "properties": {
+                "error": {
+                    "type": "object",
+                    "properties": {
+                        "code": {
+                            "type": "string"
+                        },
+                        "message": {
+                            "type": "string"
+                        }
+                    }
+                }
+            }
+        },
+        "internal_transport_handlers_authorization.GetUsersInfoDTO": {
+            "type": "object",
+            "properties": {
+                "user_ids": {
+                    "type": "array",
+                    "items": {
+                        "type": "string"
+                    }
+                }
+            }
+        },
+        "internal_transport_handlers_authorization.LoginDTO": {
+            "type": "object",
+            "properties": {
+                "email": {
+                    "type": "string"
+                },
+                "password": {
+                    "type": "string"
+                }
+            }
+        },
+        "internal_transport_handlers_authorization.RegisterDTO": {
+            "type": "object",
+            "properties": {
+                "email": {
+                    "type": "string"
+                },
+                "login": {
+                    "type": "string"
+                },
+                "name": {
+                    "type": "string"
+                },
+                "password": {
+                    "type": "string"
+                }
+            }
+        }
+    }
+}
