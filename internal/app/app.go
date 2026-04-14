@@ -2,6 +2,7 @@ package app
 
 import (
 	"api-gateway/internal/transport/handlers"
+	"api-gateway/internal/transport/handlers/authorization"
 	"api-gateway/internal/transport/handlers/event"
 	"api-gateway/internal/transport/interceptor"
 	"api-gateway/internal/transport/middleware"
@@ -70,10 +71,14 @@ func NewApp(ctx context.Context) (*App, error) {
 	authMW := middleware.NewAuthMiddleware(authClient, cfg.JWTSecret)
 
 	eventHandler := event.NewHandlerEvent(eventClient)
+	authHandler := authorization.NewAuthHandler(authClient)
 
 	mux := http.NewServeMux()
 
 	mux.HandleFunc("GET /_info", handlers.InfoHandler)
+
+	mux.HandleFunc("POST /login", authHandler.Login)
+	mux.HandleFunc("POST /register", authHandler.Register)
 
 	mux.HandleFunc("POST /v1/event/create", authMW.AuthMiddleware(eventHandler.CreateEvent))
 
