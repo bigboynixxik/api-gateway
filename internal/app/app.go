@@ -1,6 +1,16 @@
 package app
 
 import (
+	"context"
+	"errors"
+	"fmt"
+	"log/slog"
+	"net/http"
+	"os"
+	"os/signal"
+	"syscall"
+	"time"
+
 	"api-gateway/internal/transport/handlers"
 	"api-gateway/internal/transport/handlers/authorization"
 	"api-gateway/internal/transport/handlers/event"
@@ -11,15 +21,6 @@ import (
 	"api-gateway/pkg/closer"
 	"api-gateway/pkg/config"
 	"api-gateway/pkg/logger"
-	"context"
-	"errors"
-	"fmt"
-	"log/slog"
-	"net/http"
-	"os"
-	"os/signal"
-	"syscall"
-	"time"
 
 	googleGrpc "google.golang.org/grpc"
 	"google.golang.org/grpc/credentials/insecure"
@@ -36,7 +37,7 @@ type App struct {
 	closer           *closer.Closer
 }
 
-func NewApp(ctx context.Context) (*App, error) {
+func NewApp(_ context.Context) (*App, error) {
 	cfg, err := config.LoadConfig(".env")
 	if err != nil {
 		return nil, fmt.Errorf("app.New failed to load config: %w", err)
@@ -49,7 +50,6 @@ func NewApp(ctx context.Context) (*App, error) {
 		"HTTPPort", cfg.HTTPPort,
 		"Event service addr", cfg.EventServiceAddr,
 		"Auth service addr", cfg.AuthServiceAddr)
-	ctx = logger.WithContext(ctx, logs)
 
 	eventConn, err := googleGrpc.NewClient(cfg.EventServiceAddr,
 		googleGrpc.WithTransportCredentials(insecure.NewCredentials()),
@@ -82,7 +82,12 @@ func NewApp(ctx context.Context) (*App, error) {
 	mux.HandleFunc("GET /users/{login}", authHandler.GetUserInfoByLogin)
 	mux.HandleFunc("POST /users/info", authHandler.GetUsersInfo)
 
-	mux.HandleFunc("POST /v1/event/create", authMW.AuthMiddleware(eventHandler.CreateEvent))
+	mux.HandleFunc("GET /v1/events/my", authMW.AuthMiddleware(eventHandler.ListUserEvents))
+	mux.HandleFunc("POST /v1/events", authMW.AuthMiddleware(eventHandler.CreateEvent))
+	mux.HandleFunc("PATCH /v1/events/{event_id}", authMW.AuthMiddleware(eventHandler.UpdateEvent))
+	mux.HandleFunc("DELELTE /v1/events/{event_id}", authMW.AuthMiddleware(eventHandler.CancelEvent))
+	mux.HandleFunc("GET /v1/events/{event_id}", eventHandler.GetEvent)
+	mux.HandleFunc("GET /v1/events", eventHandler.ListEvents)
 
 	httpServer := &http.Server{
 		Addr:    ":" + cfg.HTTPPort,

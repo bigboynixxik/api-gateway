@@ -121,7 +121,7 @@ const docTemplate = `{
         },
         "/users/info": {
             "post": {
-                "description": "Возвращает словарь с данными пользователей по переданному массиву ID (используется POST для обхода лимитов URL)",
+                "description": "Возвращает мапу с данными пользователей по переданному массиву ID",
                 "consumes": [
                     "application/json"
                 ],
@@ -145,7 +145,7 @@ const docTemplate = `{
                 ],
                 "responses": {
                     "200": {
-                        "description": "Словарь пользователей (ключ - ID)",
+                        "description": "Map пользователей (ключ - ID)",
                         "schema": {
                             "$ref": "#/definitions/api-gateway_pkg_api_auth_v1.GetUsersInfoResponse"
                         }
@@ -217,6 +217,287 @@ const docTemplate = `{
                     }
                 }
             }
+        },
+        "/v1/events": {
+            "get": {
+                "description": "Получение списка ивентов. Также можно через query-параметры указать: поиск по названию (title), поиск по описанию (description); фильтрация по дате: (starts_after, starts_before), фильтр по локации (location_name)",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "events"
+                ],
+                "summary": "Получить список ивентов",
+                "responses": {
+                    "200": {
+                        "description": "Возвращает список ивентов",
+                        "schema": {
+                            "$ref": "#/definitions/api-gateway_pkg_api_v1.ListEventsResponse"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/api-gateway_pkg_response.ErrorResponse"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/api-gateway_pkg_response.ErrorResponse"
+                        }
+                    }
+                }
+            },
+            "post": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "description": "Создает ивент. Обязательно передавать Bearer токен в заголовке Authorization.",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "events"
+                ],
+                "summary": "Создать новое мероприятие",
+                "parameters": [
+                    {
+                        "description": "Данные мероприятия",
+                        "name": "request",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/internal_transport_handlers_event.CreateEventDTO"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Возвращает ID созданного ивента",
+                        "schema": {
+                            "$ref": "#/definitions/api-gateway_pkg_api_v1.CreateEventResponse"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/api-gateway_pkg_response.ErrorResponse"
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized",
+                        "schema": {
+                            "$ref": "#/definitions/api-gateway_pkg_response.ErrorResponse"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/api-gateway_pkg_response.ErrorResponse"
+                        }
+                    }
+                }
+            }
+        },
+        "/v1/events/my": {
+            "get": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "events"
+                ],
+                "summary": "Список мероприятий пользователя",
+                "responses": {
+                    "200": {
+                        "description": "Возвращает список мероприятий пользователя",
+                        "schema": {
+                            "$ref": "#/definitions/api-gateway_pkg_api_v1.ListUserEventsResponse"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/api-gateway_pkg_response.ErrorResponse"
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized",
+                        "schema": {
+                            "$ref": "#/definitions/api-gateway_pkg_response.ErrorResponse"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/api-gateway_pkg_response.ErrorResponse"
+                        }
+                    }
+                }
+            }
+        },
+        "/v1/events/{event_id}": {
+            "get": {
+                "description": "отправляется id ивента, возвращается информация о нём",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "events"
+                ],
+                "summary": "получить информацию об ивенте",
+                "responses": {
+                    "200": {
+                        "description": "Возвращает список: информация об ивенте",
+                        "schema": {
+                            "$ref": "#/definitions/api-gateway_pkg_api_v1.GetEventResponse"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/api-gateway_pkg_response.ErrorResponse"
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized",
+                        "schema": {
+                            "$ref": "#/definitions/api-gateway_pkg_response.ErrorResponse"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/api-gateway_pkg_response.ErrorResponse"
+                        }
+                    }
+                }
+            },
+            "delete": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "events"
+                ],
+                "summary": "Отменить ивент",
+                "responses": {
+                    "200": {
+                        "description": "Возвращает список: обновлённые данные об ивенте",
+                        "schema": {
+                            "$ref": "#/definitions/api-gateway_pkg_api_v1.CancelEventResponse"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/api-gateway_pkg_response.ErrorResponse"
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized",
+                        "schema": {
+                            "$ref": "#/definitions/api-gateway_pkg_response.ErrorResponse"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/api-gateway_pkg_response.ErrorResponse"
+                        }
+                    }
+                }
+            },
+            "patch": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "description": "Частичное обновление данных (PATCH). Обязательно Bearer токен.",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "events"
+                ],
+                "summary": "Обновить мероприятие",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "ID мероприятия",
+                        "name": "event_id",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "description": "Новые данные",
+                        "name": "request",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/internal_transport_handlers_event.UpdateEventDTO"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/api-gateway_pkg_api_v1.UpdateEventResponse"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/api-gateway_pkg_response.ErrorResponse"
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized",
+                        "schema": {
+                            "$ref": "#/definitions/api-gateway_pkg_response.ErrorResponse"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/api-gateway_pkg_response.ErrorResponse"
+                        }
+                    }
+                }
+            }
         }
     },
     "definitions": {
@@ -261,6 +542,104 @@ const docTemplate = `{
                 },
                 "name": {
                     "type": "string"
+                }
+            }
+        },
+        "api-gateway_pkg_api_v1.CancelEventResponse": {
+            "type": "object",
+            "properties": {
+                "success": {
+                    "description": "Успешно/ не успешно",
+                    "type": "boolean"
+                }
+            }
+        },
+        "api-gateway_pkg_api_v1.CreateEventResponse": {
+            "type": "object",
+            "properties": {
+                "id": {
+                    "type": "string"
+                }
+            }
+        },
+        "api-gateway_pkg_api_v1.EventInfo": {
+            "type": "object",
+            "properties": {
+                "description": {
+                    "description": "Описание мероприятия",
+                    "type": "string"
+                },
+                "duration": {
+                    "description": "Длительность мероприятия",
+                    "type": "integer"
+                },
+                "id": {
+                    "type": "string"
+                },
+                "is_private": {
+                    "description": "Приватность",
+                    "type": "boolean"
+                },
+                "starts_at": {
+                    "description": "Дата-время начала мероприятия",
+                    "allOf": [
+                        {
+                            "$ref": "#/definitions/timestamppb.Timestamp"
+                        }
+                    ]
+                },
+                "status": {
+                    "description": "Статус мероприятия (draft / active / cancelled / completed)",
+                    "type": "string"
+                },
+                "title": {
+                    "description": "Название мероприятия",
+                    "type": "string"
+                }
+            }
+        },
+        "api-gateway_pkg_api_v1.GetEventResponse": {
+            "type": "object",
+            "properties": {
+                "event": {
+                    "description": "Само мероприятие",
+                    "allOf": [
+                        {
+                            "$ref": "#/definitions/api-gateway_pkg_api_v1.EventInfo"
+                        }
+                    ]
+                }
+            }
+        },
+        "api-gateway_pkg_api_v1.ListEventsResponse": {
+            "type": "object",
+            "properties": {
+                "events": {
+                    "description": "Список всех мероприятий",
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/api-gateway_pkg_api_v1.EventInfo"
+                    }
+                }
+            }
+        },
+        "api-gateway_pkg_api_v1.ListUserEventsResponse": {
+            "type": "object",
+            "properties": {
+                "events": {
+                    "description": "Список ивентов",
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/api-gateway_pkg_api_v1.EventInfo"
+                    }
+                }
+            }
+        },
+        "api-gateway_pkg_api_v1.UpdateEventResponse": {
+            "type": "object",
+            "properties": {
+                "event": {
+                    "$ref": "#/definitions/api-gateway_pkg_api_v1.EventInfo"
                 }
             }
         },
@@ -318,18 +697,88 @@ const docTemplate = `{
                     "type": "string"
                 }
             }
+        },
+        "internal_transport_handlers_event.CreateEventDTO": {
+            "type": "object",
+            "properties": {
+                "description": {
+                    "type": "string"
+                },
+                "duration_minutes": {
+                    "type": "integer"
+                },
+                "is_private": {
+                    "type": "boolean"
+                },
+                "location_coords": {
+                    "type": "string"
+                },
+                "location_name": {
+                    "type": "string"
+                },
+                "max_participants": {
+                    "type": "integer"
+                },
+                "starts_at": {
+                    "type": "string"
+                },
+                "title": {
+                    "type": "string"
+                }
+            }
+        },
+        "internal_transport_handlers_event.UpdateEventDTO": {
+            "type": "object",
+            "properties": {
+                "description": {
+                    "type": "string"
+                },
+                "location_coords": {
+                    "type": "string"
+                },
+                "location_name": {
+                    "type": "string"
+                },
+                "starts_at": {
+                    "type": "string"
+                },
+                "title": {
+                    "type": "string"
+                }
+            }
+        },
+        "timestamppb.Timestamp": {
+            "type": "object",
+            "properties": {
+                "nanos": {
+                    "description": "Non-negative fractions of a second at nanosecond resolution. This field is\nthe nanosecond portion of the duration, not an alternative to seconds.\nNegative second values with fractions must still have non-negative nanos\nvalues that count forward in time. Must be between 0 and 999,999,999\ninclusive.",
+                    "type": "integer"
+                },
+                "seconds": {
+                    "description": "Represents seconds of UTC time since Unix epoch 1970-01-01T00:00:00Z. Must\nbe between -315576000000 and 315576000000 inclusive (which corresponds to\n0001-01-01T00:00:00Z to 9999-12-31T23:59:59Z).",
+                    "type": "integer"
+                }
+            }
+        }
+    },
+    "securityDefinitions": {
+        "BearerAuth": {
+            "description": "API для сервиса мероприятий Eventify",
+            "type": "apiKey",
+            "name": "Authorization",
+            "in": "header"
         }
     }
 }`
 
 // SwaggerInfo holds exported Swagger Info so clients can modify it
 var SwaggerInfo = &swag.Spec{
-	Version:          "1.0",
-	Host:             "localhost:8080",
-	BasePath:         "/",
+	Version:          "",
+	Host:             "",
+	BasePath:         "",
 	Schemes:          []string{},
 	Title:            "Eventify API Gateway",
-	Description:      "API для сервиса мероприятий Eventify",
+	Description:      "",
 	InfoInstanceName: "swagger",
 	SwaggerTemplate:  docTemplate,
 	LeftDelim:        "{{",

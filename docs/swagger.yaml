@@ -1,4 +1,3 @@
-basePath: /
 definitions:
   api-gateway_pkg_api_auth_v1.GetUsersInfoResponse:
     properties:
@@ -28,6 +27,69 @@ definitions:
         type: string
       name:
         type: string
+    type: object
+  api-gateway_pkg_api_v1.CancelEventResponse:
+    properties:
+      success:
+        description: Успешно/ не успешно
+        type: boolean
+    type: object
+  api-gateway_pkg_api_v1.CreateEventResponse:
+    properties:
+      id:
+        type: string
+    type: object
+  api-gateway_pkg_api_v1.EventInfo:
+    properties:
+      description:
+        description: Описание мероприятия
+        type: string
+      duration:
+        description: Длительность мероприятия
+        type: integer
+      id:
+        type: string
+      is_private:
+        description: Приватность
+        type: boolean
+      starts_at:
+        allOf:
+        - $ref: '#/definitions/timestamppb.Timestamp'
+        description: Дата-время начала мероприятия
+      status:
+        description: Статус мероприятия (draft / active / cancelled / completed)
+        type: string
+      title:
+        description: Название мероприятия
+        type: string
+    type: object
+  api-gateway_pkg_api_v1.GetEventResponse:
+    properties:
+      event:
+        allOf:
+        - $ref: '#/definitions/api-gateway_pkg_api_v1.EventInfo'
+        description: Само мероприятие
+    type: object
+  api-gateway_pkg_api_v1.ListEventsResponse:
+    properties:
+      events:
+        description: Список всех мероприятий
+        items:
+          $ref: '#/definitions/api-gateway_pkg_api_v1.EventInfo'
+        type: array
+    type: object
+  api-gateway_pkg_api_v1.ListUserEventsResponse:
+    properties:
+      events:
+        description: Список ивентов
+        items:
+          $ref: '#/definitions/api-gateway_pkg_api_v1.EventInfo'
+        type: array
+    type: object
+  api-gateway_pkg_api_v1.UpdateEventResponse:
+    properties:
+      event:
+        $ref: '#/definitions/api-gateway_pkg_api_v1.EventInfo'
     type: object
   api-gateway_pkg_response.ErrorResponse:
     properties:
@@ -64,12 +126,58 @@ definitions:
       password:
         type: string
     type: object
-host: localhost:8080
+  internal_transport_handlers_event.CreateEventDTO:
+    properties:
+      description:
+        type: string
+      duration_minutes:
+        type: integer
+      is_private:
+        type: boolean
+      location_coords:
+        type: string
+      location_name:
+        type: string
+      max_participants:
+        type: integer
+      starts_at:
+        type: string
+      title:
+        type: string
+    type: object
+  internal_transport_handlers_event.UpdateEventDTO:
+    properties:
+      description:
+        type: string
+      location_coords:
+        type: string
+      location_name:
+        type: string
+      starts_at:
+        type: string
+      title:
+        type: string
+    type: object
+  timestamppb.Timestamp:
+    properties:
+      nanos:
+        description: |-
+          Non-negative fractions of a second at nanosecond resolution. This field is
+          the nanosecond portion of the duration, not an alternative to seconds.
+          Negative second values with fractions must still have non-negative nanos
+          values that count forward in time. Must be between 0 and 999,999,999
+          inclusive.
+        type: integer
+      seconds:
+        description: |-
+          Represents seconds of UTC time since Unix epoch 1970-01-01T00:00:00Z. Must
+          be between -315576000000 and 315576000000 inclusive (which corresponds to
+          0001-01-01T00:00:00Z to 9999-12-31T23:59:59Z).
+        type: integer
+    type: object
 info:
   contact: {}
-  description: API для сервиса мероприятий Eventify
   title: Eventify API Gateway
-  version: "1.0"
 paths:
   /login:
     post:
@@ -175,8 +283,8 @@ paths:
     post:
       consumes:
       - application/json
-      description: Возвращает словарь с данными пользователей по переданному массиву
-        ID (используется POST для обхода лимитов URL)
+      description: Возвращает мапу с данными пользователей по переданному массиву
+        ID
       parameters:
       - description: Массив UUID пользователей
         in: body
@@ -188,7 +296,7 @@ paths:
       - application/json
       responses:
         "200":
-          description: Словарь пользователей (ключ - ID)
+          description: Map пользователей (ключ - ID)
           schema:
             $ref: '#/definitions/api-gateway_pkg_api_auth_v1.GetUsersInfoResponse'
         "400":
@@ -206,4 +314,193 @@ paths:
       summary: Получение информации о группе пользователей
       tags:
       - users
+  /v1/events:
+    get:
+      consumes:
+      - application/json
+      description: 'Получение списка ивентов. Также можно через query-параметры указать:
+        поиск по названию (title), поиск по описанию (description); фильтрация по
+        дате: (starts_after, starts_before), фильтр по локации (location_name)'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Возвращает список ивентов
+          schema:
+            $ref: '#/definitions/api-gateway_pkg_api_v1.ListEventsResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/api-gateway_pkg_response.ErrorResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/api-gateway_pkg_response.ErrorResponse'
+      summary: Получить список ивентов
+      tags:
+      - events
+    post:
+      consumes:
+      - application/json
+      description: Создает ивент. Обязательно передавать Bearer токен в заголовке
+        Authorization.
+      parameters:
+      - description: Данные мероприятия
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/internal_transport_handlers_event.CreateEventDTO'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Возвращает ID созданного ивента
+          schema:
+            $ref: '#/definitions/api-gateway_pkg_api_v1.CreateEventResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/api-gateway_pkg_response.ErrorResponse'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/api-gateway_pkg_response.ErrorResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/api-gateway_pkg_response.ErrorResponse'
+      security:
+      - BearerAuth: []
+      summary: Создать новое мероприятие
+      tags:
+      - events
+  /v1/events/{event_id}:
+    delete:
+      consumes:
+      - application/json
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: 'Возвращает список: обновлённые данные об ивенте'
+          schema:
+            $ref: '#/definitions/api-gateway_pkg_api_v1.CancelEventResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/api-gateway_pkg_response.ErrorResponse'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/api-gateway_pkg_response.ErrorResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/api-gateway_pkg_response.ErrorResponse'
+      security:
+      - BearerAuth: []
+      summary: Отменить ивент
+      tags:
+      - events
+    get:
+      consumes:
+      - application/json
+      description: отправляется id ивента, возвращается информация о нём
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: 'Возвращает список: информация об ивенте'
+          schema:
+            $ref: '#/definitions/api-gateway_pkg_api_v1.GetEventResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/api-gateway_pkg_response.ErrorResponse'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/api-gateway_pkg_response.ErrorResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/api-gateway_pkg_response.ErrorResponse'
+      summary: получить информацию об ивенте
+      tags:
+      - events
+    patch:
+      consumes:
+      - application/json
+      description: Частичное обновление данных (PATCH). Обязательно Bearer токен.
+      parameters:
+      - description: ID мероприятия
+        in: path
+        name: event_id
+        required: true
+        type: string
+      - description: Новые данные
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/internal_transport_handlers_event.UpdateEventDTO'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/api-gateway_pkg_api_v1.UpdateEventResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/api-gateway_pkg_response.ErrorResponse'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/api-gateway_pkg_response.ErrorResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/api-gateway_pkg_response.ErrorResponse'
+      security:
+      - BearerAuth: []
+      summary: Обновить мероприятие
+      tags:
+      - events
+  /v1/events/my:
+    get:
+      consumes:
+      - application/json
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Возвращает список мероприятий пользователя
+          schema:
+            $ref: '#/definitions/api-gateway_pkg_api_v1.ListUserEventsResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/api-gateway_pkg_response.ErrorResponse'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/api-gateway_pkg_response.ErrorResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/api-gateway_pkg_response.ErrorResponse'
+      security:
+      - BearerAuth: []
+      summary: Список мероприятий пользователя
+      tags:
+      - events
+securityDefinitions:
+  BearerAuth:
+    description: API для сервиса мероприятий Eventify
+    in: header
+    name: Authorization
+    type: apiKey
 swagger: "2.0"
