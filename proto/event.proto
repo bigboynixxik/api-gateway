@@ -174,8 +174,19 @@ message UpdateEventResponse {
   EventInfo event = 1;
 }
 
-// Пустой запрос на получение списка всех мероприятий
+// Запрос на получение списка мероприятий (с поддержкой поиска и фильтрации)
 message ListEventsRequest {
+  // Поисковый запрос (искать по title и description)
+  optional string query = 1;
+
+  // Фильтр по дате: показать ивенты, которые начнутся ПОСЛЕ этого времени
+  optional google.protobuf.Timestamp starts_after = 2;
+
+  // Фильтр по дате: показать ивенты, которые начнутся ДО этого времени
+  optional google.protobuf.Timestamp starts_before = 3;
+
+  // Фильтр по локации (точное совпадение или подстрока)
+  optional string location_name = 4;
 }
 
 // Ответ на запрос получения списка мероприятий

@@ -738,9 +738,17 @@ func (x *UpdateEventResponse) GetEvent() *EventInfo {
 	return nil
 }
 
-// Пустой запрос на получение списка всех мероприятий
+// Запрос на получение списка мероприятий (с поддержкой поиска и фильтрации)
 type ListEventsRequest struct {
-	state         protoimpl.MessageState `protogen:"open.v1"`
+	state protoimpl.MessageState `protogen:"open.v1"`
+	// Поисковый запрос (искать по title и description)
+	Query *string `protobuf:"bytes,1,opt,name=query,proto3,oneof" json:"query,omitempty"`
+	// Фильтр по дате: показать ивенты, которые начнутся ПОСЛЕ этого времени
+	StartsAfter *timestamppb.Timestamp `protobuf:"bytes,2,opt,name=starts_after,json=startsAfter,proto3,oneof" json:"starts_after,omitempty"`
+	// Фильтр по дате: показать ивенты, которые начнутся ДО этого времени
+	StartsBefore *timestamppb.Timestamp `protobuf:"bytes,3,opt,name=starts_before,json=startsBefore,proto3,oneof" json:"starts_before,omitempty"`
+	// Фильтр по локации (точное совпадение или подстрока)
+	LocationName  *string `protobuf:"bytes,4,opt,name=location_name,json=locationName,proto3,oneof" json:"location_name,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -773,6 +781,34 @@ func (x *ListEventsRequest) ProtoReflect() protoreflect.Message {
 // Deprecated: Use ListEventsRequest.ProtoReflect.Descriptor instead.
 func (*ListEventsRequest) Descriptor() ([]byte, []int) {
 	return file_event_proto_rawDescGZIP(), []int{11}
+}
+
+func (x *ListEventsRequest) GetQuery() string {
+	if x != nil && x.Query != nil {
+		return *x.Query
+	}
+	return ""
+}
+
+func (x *ListEventsRequest) GetStartsAfter() *timestamppb.Timestamp {
+	if x != nil {
+		return x.StartsAfter
+	}
+	return nil
+}
+
+func (x *ListEventsRequest) GetStartsBefore() *timestamppb.Timestamp {
+	if x != nil {
+		return x.StartsBefore
+	}
+	return nil
+}
+
+func (x *ListEventsRequest) GetLocationName() string {
+	if x != nil && x.LocationName != nil {
+		return *x.LocationName
+	}
+	return ""
 }
 
 // Ответ на запрос получения списка мероприятий
@@ -1882,8 +1918,16 @@ const file_event_proto_rawDesc = "" +
 	"\x0e_location_nameB\x12\n" +
 	"\x10_location_coords\"=\n" +
 	"\x13UpdateEventResponse\x12&\n" +
-	"\x05event\x18\x01 \x01(\v2\x10.event.EventInfoR\x05event\"\x13\n" +
-	"\x11ListEventsRequest\">\n" +
+	"\x05event\x18\x01 \x01(\v2\x10.event.EventInfoR\x05event\"\xa1\x02\n" +
+	"\x11ListEventsRequest\x12\x19\n" +
+	"\x05query\x18\x01 \x01(\tH\x00R\x05query\x88\x01\x01\x12B\n" +
+	"\fstarts_after\x18\x02 \x01(\v2\x1a.google.protobuf.TimestampH\x01R\vstartsAfter\x88\x01\x01\x12D\n" +
+	"\rstarts_before\x18\x03 \x01(\v2\x1a.google.protobuf.TimestampH\x02R\fstartsBefore\x88\x01\x01\x12(\n" +
+	"\rlocation_name\x18\x04 \x01(\tH\x03R\flocationName\x88\x01\x01B\b\n" +
+	"\x06_queryB\x0f\n" +
+	"\r_starts_afterB\x10\n" +
+	"\x0e_starts_beforeB\x10\n" +
+	"\x0e_location_name\">\n" +
 	"\x12ListEventsResponse\x12(\n" +
 	"\x06events\x18\x01 \x03(\v2\x10.event.EventInfoR\x06events\"1\n" +
 	"\x10JoinEventRequest\x12\x1d\n" +
@@ -2019,45 +2063,47 @@ var file_event_proto_depIdxs = []int32{
 	0,  // 3: event.GetEventResponse.event:type_name -> event.EventInfo
 	33, // 4: event.UpdateEventRequest.starts_at:type_name -> google.protobuf.Timestamp
 	0,  // 5: event.UpdateEventResponse.event:type_name -> event.EventInfo
-	0,  // 6: event.ListEventsResponse.events:type_name -> event.EventInfo
-	1,  // 7: event.GetEventParticipantsResponse.participants:type_name -> event.ParticipantInfo
-	2,  // 8: event.GetEventChecklistResponse.checklist:type_name -> event.ChecklistItemInfo
-	33, // 9: event.CreateInviteLinkRequest.expires_at:type_name -> google.protobuf.Timestamp
-	3,  // 10: event.EventService.CreateEvent:input_type -> event.CreateEventRequest
-	5,  // 11: event.EventService.ListUserEvents:input_type -> event.ListUserEventsRequest
-	11, // 12: event.EventService.ListEvents:input_type -> event.ListEventsRequest
-	7,  // 13: event.EventService.GetEvent:input_type -> event.GetEventRequest
-	9,  // 14: event.EventService.UpdateEvent:input_type -> event.UpdateEventRequest
-	13, // 15: event.EventService.JoinEvent:input_type -> event.JoinEventRequest
-	15, // 16: event.EventService.LeaveEvent:input_type -> event.LeaveEventRequest
-	17, // 17: event.EventService.RemoveParticipant:input_type -> event.RemoveParticipantRequest
-	19, // 18: event.EventService.GetEventParticipants:input_type -> event.GetEventParticipantsRequest
-	21, // 19: event.EventService.AddChecklistItem:input_type -> event.AddChecklistItemRequest
-	23, // 20: event.EventService.RemoveChecklistItem:input_type -> event.RemoveChecklistItemRequest
-	25, // 21: event.EventService.MarkItemPurchased:input_type -> event.MarkItemPurchasedRequest
-	27, // 22: event.EventService.GetEventChecklist:input_type -> event.GetEventChecklistRequest
-	29, // 23: event.EventService.CancelEvent:input_type -> event.CancelEventRequest
-	31, // 24: event.EventService.CreateInviteLink:input_type -> event.CreateInviteLinkRequest
-	4,  // 25: event.EventService.CreateEvent:output_type -> event.CreateEventResponse
-	6,  // 26: event.EventService.ListUserEvents:output_type -> event.ListUserEventsResponse
-	12, // 27: event.EventService.ListEvents:output_type -> event.ListEventsResponse
-	8,  // 28: event.EventService.GetEvent:output_type -> event.GetEventResponse
-	10, // 29: event.EventService.UpdateEvent:output_type -> event.UpdateEventResponse
-	14, // 30: event.EventService.JoinEvent:output_type -> event.JoinEventResponse
-	16, // 31: event.EventService.LeaveEvent:output_type -> event.LeaveEventResponse
-	18, // 32: event.EventService.RemoveParticipant:output_type -> event.RemoveParticipantResponse
-	20, // 33: event.EventService.GetEventParticipants:output_type -> event.GetEventParticipantsResponse
-	22, // 34: event.EventService.AddChecklistItem:output_type -> event.AddChecklistItemResponse
-	24, // 35: event.EventService.RemoveChecklistItem:output_type -> event.RemoveChecklistItemResponse
-	26, // 36: event.EventService.MarkItemPurchased:output_type -> event.MarkItemPurchasedResponse
-	28, // 37: event.EventService.GetEventChecklist:output_type -> event.GetEventChecklistResponse
-	30, // 38: event.EventService.CancelEvent:output_type -> event.CancelEventResponse
-	32, // 39: event.EventService.CreateInviteLink:output_type -> event.CreateInviteLinkResponse
-	25, // [25:40] is the sub-list for method output_type
-	10, // [10:25] is the sub-list for method input_type
-	10, // [10:10] is the sub-list for extension type_name
-	10, // [10:10] is the sub-list for extension extendee
-	0,  // [0:10] is the sub-list for field type_name
+	33, // 6: event.ListEventsRequest.starts_after:type_name -> google.protobuf.Timestamp
+	33, // 7: event.ListEventsRequest.starts_before:type_name -> google.protobuf.Timestamp
+	0,  // 8: event.ListEventsResponse.events:type_name -> event.EventInfo
+	1,  // 9: event.GetEventParticipantsResponse.participants:type_name -> event.ParticipantInfo
+	2,  // 10: event.GetEventChecklistResponse.checklist:type_name -> event.ChecklistItemInfo
+	33, // 11: event.CreateInviteLinkRequest.expires_at:type_name -> google.protobuf.Timestamp
+	3,  // 12: event.EventService.CreateEvent:input_type -> event.CreateEventRequest
+	5,  // 13: event.EventService.ListUserEvents:input_type -> event.ListUserEventsRequest
+	11, // 14: event.EventService.ListEvents:input_type -> event.ListEventsRequest
+	7,  // 15: event.EventService.GetEvent:input_type -> event.GetEventRequest
+	9,  // 16: event.EventService.UpdateEvent:input_type -> event.UpdateEventRequest
+	13, // 17: event.EventService.JoinEvent:input_type -> event.JoinEventRequest
+	15, // 18: event.EventService.LeaveEvent:input_type -> event.LeaveEventRequest
+	17, // 19: event.EventService.RemoveParticipant:input_type -> event.RemoveParticipantRequest
+	19, // 20: event.EventService.GetEventParticipants:input_type -> event.GetEventParticipantsRequest
+	21, // 21: event.EventService.AddChecklistItem:input_type -> event.AddChecklistItemRequest
+	23, // 22: event.EventService.RemoveChecklistItem:input_type -> event.RemoveChecklistItemRequest
+	25, // 23: event.EventService.MarkItemPurchased:input_type -> event.MarkItemPurchasedRequest
+	27, // 24: event.EventService.GetEventChecklist:input_type -> event.GetEventChecklistRequest
+	29, // 25: event.EventService.CancelEvent:input_type -> event.CancelEventRequest
+	31, // 26: event.EventService.CreateInviteLink:input_type -> event.CreateInviteLinkRequest
+	4,  // 27: event.EventService.CreateEvent:output_type -> event.CreateEventResponse
+	6,  // 28: event.EventService.ListUserEvents:output_type -> event.ListUserEventsResponse
+	12, // 29: event.EventService.ListEvents:output_type -> event.ListEventsResponse
+	8,  // 30: event.EventService.GetEvent:output_type -> event.GetEventResponse
+	10, // 31: event.EventService.UpdateEvent:output_type -> event.UpdateEventResponse
+	14, // 32: event.EventService.JoinEvent:output_type -> event.JoinEventResponse
+	16, // 33: event.EventService.LeaveEvent:output_type -> event.LeaveEventResponse
+	18, // 34: event.EventService.RemoveParticipant:output_type -> event.RemoveParticipantResponse
+	20, // 35: event.EventService.GetEventParticipants:output_type -> event.GetEventParticipantsResponse
+	22, // 36: event.EventService.AddChecklistItem:output_type -> event.AddChecklistItemResponse
+	24, // 37: event.EventService.RemoveChecklistItem:output_type -> event.RemoveChecklistItemResponse
+	26, // 38: event.EventService.MarkItemPurchased:output_type -> event.MarkItemPurchasedResponse
+	28, // 39: event.EventService.GetEventChecklist:output_type -> event.GetEventChecklistResponse
+	30, // 40: event.EventService.CancelEvent:output_type -> event.CancelEventResponse
+	32, // 41: event.EventService.CreateInviteLink:output_type -> event.CreateInviteLinkResponse
+	27, // [27:42] is the sub-list for method output_type
+	12, // [12:27] is the sub-list for method input_type
+	12, // [12:12] is the sub-list for extension type_name
+	12, // [12:12] is the sub-list for extension extendee
+	0,  // [0:12] is the sub-list for field type_name
 }
 
 func init() { file_event_proto_init() }
@@ -2068,6 +2114,7 @@ func file_event_proto_init() {
 	file_event_proto_msgTypes[2].OneofWrappers = []any{}
 	file_event_proto_msgTypes[3].OneofWrappers = []any{}
 	file_event_proto_msgTypes[9].OneofWrappers = []any{}
+	file_event_proto_msgTypes[11].OneofWrappers = []any{}
 	file_event_proto_msgTypes[25].OneofWrappers = []any{}
 	type x struct{}
 	out := protoimpl.TypeBuilder{
