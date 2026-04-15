@@ -143,7 +143,7 @@ message ListUserEventsResponse {
   repeated EventInfo events = 1;
 }
 
-// Запрос на получения всех мероприятий
+// Запрос на получение информации об мероприятии
 message GetEventRequest {
   string id = 1;
 }
