@@ -742,13 +742,14 @@ func (x *UpdateEventResponse) GetEvent() *EventInfo {
 type ListEventsRequest struct {
 	state protoimpl.MessageState `protogen:"open.v1"`
 	// Поисковый запрос (искать по title и description)
-	Query *string `protobuf:"bytes,1,opt,name=query,proto3,oneof" json:"query,omitempty"`
+	Title       *string `protobuf:"bytes,1,opt,name=title,proto3,oneof" json:"title,omitempty"`
+	Description *string `protobuf:"bytes,2,opt,name=description,proto3,oneof" json:"description,omitempty"`
 	// Фильтр по дате: показать ивенты, которые начнутся ПОСЛЕ этого времени
-	StartsAfter *timestamppb.Timestamp `protobuf:"bytes,2,opt,name=starts_after,json=startsAfter,proto3,oneof" json:"starts_after,omitempty"`
+	StartsAfter *timestamppb.Timestamp `protobuf:"bytes,3,opt,name=starts_after,json=startsAfter,proto3,oneof" json:"starts_after,omitempty"`
 	// Фильтр по дате: показать ивенты, которые начнутся ДО этого времени
-	StartsBefore *timestamppb.Timestamp `protobuf:"bytes,3,opt,name=starts_before,json=startsBefore,proto3,oneof" json:"starts_before,omitempty"`
+	StartsBefore *timestamppb.Timestamp `protobuf:"bytes,4,opt,name=starts_before,json=startsBefore,proto3,oneof" json:"starts_before,omitempty"`
 	// Фильтр по локации (точное совпадение или подстрока)
-	LocationName  *string `protobuf:"bytes,4,opt,name=location_name,json=locationName,proto3,oneof" json:"location_name,omitempty"`
+	LocationName  *string `protobuf:"bytes,5,opt,name=location_name,json=locationName,proto3,oneof" json:"location_name,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -783,9 +784,16 @@ func (*ListEventsRequest) Descriptor() ([]byte, []int) {
 	return file_event_proto_rawDescGZIP(), []int{11}
 }
 
-func (x *ListEventsRequest) GetQuery() string {
-	if x != nil && x.Query != nil {
-		return *x.Query
+func (x *ListEventsRequest) GetTitle() string {
+	if x != nil && x.Title != nil {
+		return *x.Title
+	}
+	return ""
+}
+
+func (x *ListEventsRequest) GetDescription() string {
+	if x != nil && x.Description != nil {
+		return *x.Description
 	}
 	return ""
 }
@@ -1918,13 +1926,15 @@ const file_event_proto_rawDesc = "" +
 	"\x0e_location_nameB\x12\n" +
 	"\x10_location_coords\"=\n" +
 	"\x13UpdateEventResponse\x12&\n" +
-	"\x05event\x18\x01 \x01(\v2\x10.event.EventInfoR\x05event\"\xa1\x02\n" +
+	"\x05event\x18\x01 \x01(\v2\x10.event.EventInfoR\x05event\"\xd8\x02\n" +
 	"\x11ListEventsRequest\x12\x19\n" +
-	"\x05query\x18\x01 \x01(\tH\x00R\x05query\x88\x01\x01\x12B\n" +
-	"\fstarts_after\x18\x02 \x01(\v2\x1a.google.protobuf.TimestampH\x01R\vstartsAfter\x88\x01\x01\x12D\n" +
-	"\rstarts_before\x18\x03 \x01(\v2\x1a.google.protobuf.TimestampH\x02R\fstartsBefore\x88\x01\x01\x12(\n" +
-	"\rlocation_name\x18\x04 \x01(\tH\x03R\flocationName\x88\x01\x01B\b\n" +
-	"\x06_queryB\x0f\n" +
+	"\x05title\x18\x01 \x01(\tH\x00R\x05title\x88\x01\x01\x12%\n" +
+	"\vdescription\x18\x02 \x01(\tH\x01R\vdescription\x88\x01\x01\x12B\n" +
+	"\fstarts_after\x18\x03 \x01(\v2\x1a.google.protobuf.TimestampH\x02R\vstartsAfter\x88\x01\x01\x12D\n" +
+	"\rstarts_before\x18\x04 \x01(\v2\x1a.google.protobuf.TimestampH\x03R\fstartsBefore\x88\x01\x01\x12(\n" +
+	"\rlocation_name\x18\x05 \x01(\tH\x04R\flocationName\x88\x01\x01B\b\n" +
+	"\x06_titleB\x0e\n" +
+	"\f_descriptionB\x0f\n" +
 	"\r_starts_afterB\x10\n" +
 	"\x0e_starts_beforeB\x10\n" +
 	"\x0e_location_name\">\n" +
