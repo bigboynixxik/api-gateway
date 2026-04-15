@@ -1,8 +1,9 @@
 package main
 
 import (
-	"api-gateway/internal/app"
 	"context"
+
+	"api-gateway/internal/app"
 )
 
 // @title Eventify API Gateway

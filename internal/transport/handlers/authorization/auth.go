@@ -1,12 +1,13 @@
 package authorization
 
 import (
-	auth "api-gateway/pkg/api/auth/v1"
-	"api-gateway/pkg/logger"
-	"api-gateway/pkg/response"
 	"encoding/json"
 	"log/slog"
 	"net/http"
+
+	auth "api-gateway/pkg/api/auth/v1"
+	"api-gateway/pkg/logger"
+	"api-gateway/pkg/response"
 
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"

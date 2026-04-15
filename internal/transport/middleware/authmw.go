@@ -1,30 +1,31 @@
 package middleware
 
 import (
-	auth "api-gateway/pkg/api/auth/v1"
-	"api-gateway/pkg/authJWT"
-	"api-gateway/pkg/response"
 	"context"
 	"net/http"
 	"strings"
+
+	auth "api-gateway/pkg/api/auth/v1"
+	"api-gateway/pkg/authJWT"
+	"api-gateway/pkg/response"
 )
 
 type ContextKey string
 
 const UserIDKey ContextKey = "user_id"
 
-type authMiddleware struct {
+type AuthMiddleware struct {
 	authService auth.AuthServiceClient
 	jwtSecret   string
 }
 
-func NewAuthMiddleware(authService auth.AuthServiceClient, jwtSecret string) *authMiddleware {
-	return &authMiddleware{
+func NewAuthMiddleware(authService auth.AuthServiceClient, jwtSecret string) *AuthMiddleware {
+	return &AuthMiddleware{
 		authService: authService,
 		jwtSecret:   jwtSecret}
 }
 
-func (am *authMiddleware) AuthMiddleware(next http.HandlerFunc) http.HandlerFunc {
+func (am *AuthMiddleware) AuthMiddleware(next http.HandlerFunc) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		header := r.Header.Get("Authorization")
 		if header == "" || !strings.HasPrefix(header, "Bearer ") {
