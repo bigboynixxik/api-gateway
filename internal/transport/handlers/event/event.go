@@ -54,7 +54,7 @@ func (h *HandlerEvent) CreateEvent(w http.ResponseWriter, r *http.Request) {
 	userUUID, ok := r.Context().Value(middleware.UserIDKey).(uuid.UUID)
 	if !ok {
 		l.Error("event.CreateEvent user id is required")
-		response.Error(w, http.StatusUnauthorized, "UNATHORIZED", "user id is not found")
+		response.Error(w, http.StatusUnauthorized, "UNAUTHORIZED", "user id is not found")
 		return
 	}
 	userID := userUUID.String()
@@ -105,7 +105,7 @@ func (h *HandlerEvent) ListUserEvents(w http.ResponseWriter, r *http.Request) {
 	userUUID, ok := r.Context().Value(middleware.UserIDKey).(uuid.UUID)
 	if !ok {
 		l.Error("event.ListUserEvents user id is required")
-		response.Error(w, http.StatusUnauthorized, "UNATHORIZED", "user id is not found")
+		response.Error(w, http.StatusUnauthorized, "UNAUTHORIZED", "user id is not found")
 		return
 	}
 	userID := userUUID.String()
@@ -174,7 +174,7 @@ func (h *HandlerEvent) UpdateEvent(w http.ResponseWriter, r *http.Request) {
 	userUUID, ok := r.Context().Value(middleware.UserIDKey).(uuid.UUID)
 	if !ok {
 		l.Error("event.ListUserEvents user id is required")
-		response.Error(w, http.StatusUnauthorized, "UNATHORIZED", "user id is not found")
+		response.Error(w, http.StatusUnauthorized, "UNAUTHORIZED", "user id is not found")
 		return
 	}
 	userID := userUUID.String()
@@ -190,6 +190,8 @@ func (h *HandlerEvent) UpdateEvent(w http.ResponseWriter, r *http.Request) {
 	if err := json.NewDecoder(r.Body).Decode(&reqDTO); err != nil {
 		l.Error("event.UpdateEvent bad json",
 			slog.String("error", err.Error()))
+		response.Error(w, http.StatusBadRequest, "INVALID_BODY", "bad json")
+		return
 	}
 
 	grpcReq := api.UpdateEventRequest{
@@ -228,7 +230,7 @@ func (h *HandlerEvent) CancelEvent(w http.ResponseWriter, r *http.Request) {
 	userUUID, ok := r.Context().Value(middleware.UserIDKey).(uuid.UUID)
 	if !ok {
 		l.Error("event.ListUserEvents user id is required")
-		response.Error(w, http.StatusUnauthorized, "UNATHORIZED", "user id is not found")
+		response.Error(w, http.StatusUnauthorized, "UNAUTHORIZED", "user id is not found")
 		return
 	}
 	userID := userUUID.String()
@@ -253,33 +255,29 @@ func (h *HandlerEvent) CancelEvent(w http.ResponseWriter, r *http.Request) {
 	response.JSON(w, http.StatusOK, resp)
 }
 
-type ListEventsDTO struct {
-	Title        *string    `json:"title"`
-	Description  *string    `json:"description"`
-	StartAfter   *time.Time `json:"start_after"`
-	StartsBefore *time.Time `json:"starts_before"`
-	LocationName *string    `json:"location_name"`
-}
-
 // ListEvents godoc
 // @Summary Получить список ивентов
-// @Description Получение списка ивентов. Также можно через query-параметры указать: поиск по названию (title), поиск по описанию (description); фильтрация по дате: (starts_after, starts_before), фильтр по локации (location_name)
+// @Description Получение списка ивентов. Поддерживает фильтрацию.
 // @Tags events
-// @Accept json
 // @Produce json
+// @Param title query string false "Поиск по названию"
+// @Param description query string false "Поиск по описанию"
+// @Param start_after query string false "Фильтр по дате (после), формат RFC3339"
+// @Param starts_before query string false "Фильтр по дате (до), формат RFC3339"
+// @Param location_name query string false "Фильтр по локации"
 // @Success 200 {object} api.ListEventsResponse "Возвращает список ивентов"
 // @Failure 400,500 {object} response.ErrorResponse
 // @Router /v1/events [get]
 func (h *HandlerEvent) ListEvents(w http.ResponseWriter, r *http.Request) {
 	l := logger.FromContext(r.Context())
-	var reqDTO ListEventsDTO
+	var grpcReq api.ListEventsRequest
 	title := r.URL.Query().Get("title")
 	if title != "" {
-		reqDTO.Title = &title
+		grpcReq.Title = &title
 	}
 	description := r.URL.Query().Get("description")
 	if description != "" {
-		reqDTO.Description = &description
+		grpcReq.Description = &description
 	}
 	startsAfter := r.URL.Query().Get("start_after")
 	if startsAfter != "" {
@@ -290,7 +288,7 @@ func (h *HandlerEvent) ListEvents(w http.ResponseWriter, r *http.Request) {
 			response.Error(w, http.StatusBadRequest, "INTERNAL_ERROR", "internal error")
 			return
 		}
-		reqDTO.StartAfter = &startAfterTime
+		grpcReq.StartsAfter = timestamppb.New(startAfterTime)
 	}
 	startsBefore := r.URL.Query().Get("starts_before")
 	if startsBefore != "" {
@@ -301,24 +299,11 @@ func (h *HandlerEvent) ListEvents(w http.ResponseWriter, r *http.Request) {
 			response.Error(w, http.StatusInternalServerError, "INTERNAL_ERROR", "internal error")
 			return
 		}
-		reqDTO.StartsBefore = &startsBeforeTime
+		grpcReq.StartsBefore = timestamppb.New(startsBeforeTime)
 	}
 	locationName := r.URL.Query().Get("location_name")
 	if locationName != "" {
-		reqDTO.LocationName = &locationName
-	}
-
-	grpcReq := api.ListEventsRequest{
-		Title:        reqDTO.Title,
-		Description:  reqDTO.Description,
-		LocationName: reqDTO.LocationName,
-	}
-
-	if reqDTO.StartAfter != nil {
-		grpcReq.StartsAfter = timestamppb.New(*reqDTO.StartAfter)
-	}
-	if reqDTO.StartsBefore != nil {
-		grpcReq.StartsBefore = timestamppb.New(*reqDTO.StartsBefore)
+		grpcReq.LocationName = &locationName
 	}
 
 	resp, err := h.eventClient.ListEvents(r.Context(), &grpcReq)
@@ -328,5 +313,6 @@ func (h *HandlerEvent) ListEvents(w http.ResponseWriter, r *http.Request) {
 		response.Error(w, http.StatusInternalServerError, "INTERNAL_ERROR", "internal error")
 		return
 	}
+	// TODO: Из списка информации об ивентах сделать красивый список с данными
 	response.JSON(w, http.StatusOK, resp)
 }

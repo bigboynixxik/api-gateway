@@ -39,6 +39,11 @@ definitions:
       id:
         type: string
     type: object
+  api-gateway_pkg_api_v1.CreateInviteLinkResponse:
+    properties:
+      event_code:
+        type: string
+    type: object
   api-gateway_pkg_api_v1.EventInfo:
     properties:
       description:
@@ -69,6 +74,20 @@ definitions:
         allOf:
         - $ref: '#/definitions/api-gateway_pkg_api_v1.EventInfo'
         description: Само мероприятие
+    type: object
+  api-gateway_pkg_api_v1.JoinEventResponse:
+    properties:
+      event_id:
+        type: string
+      success:
+        description: Успешно/не успешно
+        type: boolean
+    type: object
+  api-gateway_pkg_api_v1.LeaveEventResponse:
+    properties:
+      success:
+        description: Успешно/ не успешно
+        type: boolean
     type: object
   api-gateway_pkg_api_v1.ListEventsResponse:
     properties:
@@ -316,11 +335,28 @@ paths:
       - users
   /v1/events:
     get:
-      consumes:
-      - application/json
-      description: 'Получение списка ивентов. Также можно через query-параметры указать:
-        поиск по названию (title), поиск по описанию (description); фильтрация по
-        дате: (starts_after, starts_before), фильтр по локации (location_name)'
+      description: Получение списка ивентов. Поддерживает фильтрацию.
+      parameters:
+      - description: Поиск по названию
+        in: query
+        name: title
+        type: string
+      - description: Поиск по описанию
+        in: query
+        name: description
+        type: string
+      - description: Фильтр по дате (после), формат RFC3339
+        in: query
+        name: start_after
+        type: string
+      - description: Фильтр по дате (до), формат RFC3339
+        in: query
+        name: starts_before
+        type: string
+      - description: Фильтр по локации
+        in: query
+        name: location_name
+        type: string
       produces:
       - application/json
       responses:
@@ -469,6 +505,92 @@ paths:
       summary: Обновить мероприятие
       tags:
       - events
+  /v1/events/{event_id}/invites:
+    post:
+      consumes:
+      - application/json
+      description: Тип приглашения (single/multi/unlimited)
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Возвращает event_code
+          schema:
+            $ref: '#/definitions/api-gateway_pkg_api_v1.CreateInviteLinkResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/api-gateway_pkg_response.ErrorResponse'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/api-gateway_pkg_response.ErrorResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/api-gateway_pkg_response.ErrorResponse'
+      security:
+      - BearerAuth: []
+      summary: Создать ссылку приглашение
+      tags:
+      - interaction
+  /v1/events/{event_id}/leave:
+    post:
+      consumes:
+      - application/json
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Возвращает статус (Успешно/не успешно)
+          schema:
+            $ref: '#/definitions/api-gateway_pkg_api_v1.LeaveEventResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/api-gateway_pkg_response.ErrorResponse'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/api-gateway_pkg_response.ErrorResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/api-gateway_pkg_response.ErrorResponse'
+      security:
+      - BearerAuth: []
+      summary: Покинуть ивент
+      tags:
+      - interaction
+  /v1/events/join:
+    post:
+      consumes:
+      - application/json
+      description: в теле запроса отправляется eventCode
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Возвращает id ивента и статус успешно/безуспешно
+          schema:
+            $ref: '#/definitions/api-gateway_pkg_api_v1.JoinEventResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/api-gateway_pkg_response.ErrorResponse'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/api-gateway_pkg_response.ErrorResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/api-gateway_pkg_response.ErrorResponse'
+      security:
+      - BearerAuth: []
+      summary: Присоединиться к ивенту
+      tags:
+      - interaction
   /v1/events/my:
     get:
       consumes:

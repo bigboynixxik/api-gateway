@@ -210,10 +210,7 @@
         },
         "/v1/events": {
             "get": {
-                "description": "Получение списка ивентов. Также можно через query-параметры указать: поиск по названию (title), поиск по описанию (description); фильтрация по дате: (starts_after, starts_before), фильтр по локации (location_name)",
-                "consumes": [
-                    "application/json"
-                ],
+                "description": "Получение списка ивентов. Поддерживает фильтрацию.",
                 "produces": [
                     "application/json"
                 ],
@@ -221,6 +218,38 @@
                     "events"
                 ],
                 "summary": "Получить список ивентов",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Поиск по названию",
+                        "name": "title",
+                        "in": "query"
+                    },
+                    {
+                        "type": "string",
+                        "description": "Поиск по описанию",
+                        "name": "description",
+                        "in": "query"
+                    },
+                    {
+                        "type": "string",
+                        "description": "Фильтр по дате (после), формат RFC3339",
+                        "name": "start_after",
+                        "in": "query"
+                    },
+                    {
+                        "type": "string",
+                        "description": "Фильтр по дате (до), формат RFC3339",
+                        "name": "starts_before",
+                        "in": "query"
+                    },
+                    {
+                        "type": "string",
+                        "description": "Фильтр по локации",
+                        "name": "location_name",
+                        "in": "query"
+                    }
+                ],
                 "responses": {
                     "200": {
                         "description": "Возвращает список ивентов",
@@ -275,6 +304,52 @@
                         "description": "Возвращает ID созданного ивента",
                         "schema": {
                             "$ref": "#/definitions/api-gateway_pkg_api_v1.CreateEventResponse"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/api-gateway_pkg_response.ErrorResponse"
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized",
+                        "schema": {
+                            "$ref": "#/definitions/api-gateway_pkg_response.ErrorResponse"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/api-gateway_pkg_response.ErrorResponse"
+                        }
+                    }
+                }
+            }
+        },
+        "/v1/events/join": {
+            "post": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "description": "в теле запроса отправляется eventCode",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "interaction"
+                ],
+                "summary": "Присоединиться к ивенту",
+                "responses": {
+                    "200": {
+                        "description": "Возвращает id ивента и статус успешно/безуспешно",
+                        "schema": {
+                            "$ref": "#/definitions/api-gateway_pkg_api_v1.JoinEventResponse"
                         }
                     },
                     "400": {
@@ -488,6 +563,97 @@
                     }
                 }
             }
+        },
+        "/v1/events/{event_id}/invites": {
+            "post": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "description": "Тип приглашения (single/multi/unlimited)",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "interaction"
+                ],
+                "summary": "Создать ссылку приглашение",
+                "responses": {
+                    "200": {
+                        "description": "Возвращает event_code",
+                        "schema": {
+                            "$ref": "#/definitions/api-gateway_pkg_api_v1.CreateInviteLinkResponse"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/api-gateway_pkg_response.ErrorResponse"
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized",
+                        "schema": {
+                            "$ref": "#/definitions/api-gateway_pkg_response.ErrorResponse"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/api-gateway_pkg_response.ErrorResponse"
+                        }
+                    }
+                }
+            }
+        },
+        "/v1/events/{event_id}/leave": {
+            "post": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "interaction"
+                ],
+                "summary": "Покинуть ивент",
+                "responses": {
+                    "200": {
+                        "description": "Возвращает статус (Успешно/не успешно)",
+                        "schema": {
+                            "$ref": "#/definitions/api-gateway_pkg_api_v1.LeaveEventResponse"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/api-gateway_pkg_response.ErrorResponse"
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized",
+                        "schema": {
+                            "$ref": "#/definitions/api-gateway_pkg_response.ErrorResponse"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/api-gateway_pkg_response.ErrorResponse"
+                        }
+                    }
+                }
+            }
         }
     },
     "definitions": {
@@ -552,6 +718,14 @@
                 }
             }
         },
+        "api-gateway_pkg_api_v1.CreateInviteLinkResponse": {
+            "type": "object",
+            "properties": {
+                "event_code": {
+                    "type": "string"
+                }
+            }
+        },
         "api-gateway_pkg_api_v1.EventInfo": {
             "type": "object",
             "properties": {
@@ -598,6 +772,27 @@
                             "$ref": "#/definitions/api-gateway_pkg_api_v1.EventInfo"
                         }
                     ]
+                }
+            }
+        },
+        "api-gateway_pkg_api_v1.JoinEventResponse": {
+            "type": "object",
+            "properties": {
+                "event_id": {
+                    "type": "string"
+                },
+                "success": {
+                    "description": "Успешно/не успешно",
+                    "type": "boolean"
+                }
+            }
+        },
+        "api-gateway_pkg_api_v1.LeaveEventResponse": {
+            "type": "object",
+            "properties": {
+                "success": {
+                    "description": "Успешно/ не успешно",
+                    "type": "boolean"
                 }
             }
         },

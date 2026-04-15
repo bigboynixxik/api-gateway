@@ -1,6 +1,7 @@
 package app
 
 import (
+	"api-gateway/internal/transport/handlers/interaction"
 	"context"
 	"errors"
 	"fmt"
@@ -72,6 +73,7 @@ func NewApp(_ context.Context) (*App, error) {
 
 	eventHandler := event.NewHandlerEvent(eventClient)
 	authHandler := authorization.NewAuthHandler(authClient)
+	interactionHandler := interaction.NewHandlerInteraction(eventClient)
 
 	mux := http.NewServeMux()
 
@@ -88,6 +90,10 @@ func NewApp(_ context.Context) (*App, error) {
 	mux.HandleFunc("DELELTE /v1/events/{event_id}", authMW.AuthMiddleware(eventHandler.CancelEvent))
 	mux.HandleFunc("GET /v1/events/{event_id}", eventHandler.GetEvent)
 	mux.HandleFunc("GET /v1/events", eventHandler.ListEvents)
+
+	mux.HandleFunc("POST /v1/events/{event_id}/invites", authMW.AuthMiddleware(interactionHandler.CreateInviteLink))
+	mux.HandleFunc("POST /v1/events/{event_id}/leave", authMW.AuthMiddleware(interactionHandler.LeaveEvent))
+	mux.HandleFunc("POST /v1/events/join", authMW.AuthMiddleware(interactionHandler.JoinEvent))
 
 	httpServer := &http.Server{
 		Addr:    ":" + cfg.HTTPPort,
