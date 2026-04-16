@@ -564,6 +564,253 @@
                 }
             }
         },
+        "/v1/events/{event_id}/checklist": {
+            "get": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "interaction"
+                ],
+                "summary": "Получить чеклист мероприятия",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "ID мероприятия",
+                        "name": "event_id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Возвращает список предметов в чеклисте",
+                        "schema": {
+                            "$ref": "#/definitions/api-gateway_pkg_api_v1.GetEventChecklistResponse"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/api-gateway_pkg_response.ErrorResponse"
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized",
+                        "schema": {
+                            "$ref": "#/definitions/api-gateway_pkg_response.ErrorResponse"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/api-gateway_pkg_response.ErrorResponse"
+                        }
+                    }
+                }
+            },
+            "post": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "interaction"
+                ],
+                "summary": "Добавить предмет в чеклист ивента",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "ID мероприятия",
+                        "name": "event_id",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "description": "Данные предмета",
+                        "name": "request",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/checklist.AddChecklistDTO"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Возвращает id созданного товара в чеклисте",
+                        "schema": {
+                            "$ref": "#/definitions/api-gateway_pkg_api_v1.AddChecklistItemResponse"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/api-gateway_pkg_response.ErrorResponse"
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized",
+                        "schema": {
+                            "$ref": "#/definitions/api-gateway_pkg_response.ErrorResponse"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/api-gateway_pkg_response.ErrorResponse"
+                        }
+                    }
+                }
+            }
+        },
+        "/v1/events/{event_id}/checklist/{item_id}": {
+            "delete": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "interaction"
+                ],
+                "summary": "Удалить предмет из чеклиста",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "ID мероприятия",
+                        "name": "event_id",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "ID предмета",
+                        "name": "item_id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Возвращает id созданного товара в чеклисте",
+                        "schema": {
+                            "$ref": "#/definitions/api-gateway_pkg_api_v1.RemoveChecklistItemResponse"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/api-gateway_pkg_response.ErrorResponse"
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized",
+                        "schema": {
+                            "$ref": "#/definitions/api-gateway_pkg_response.ErrorResponse"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/api-gateway_pkg_response.ErrorResponse"
+                        }
+                    }
+                }
+            }
+        },
+        "/v1/events/{event_id}/checklist/{item_id}/purchase": {
+            "patch": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "description": "Также можно добавить id ответственного за покупку (buyer_id), а также передать стату куплено/не куплно",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "interaction"
+                ],
+                "summary": "Пометить предмет как купленный в чеклисте",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "ID мероприятия",
+                        "name": "event_id",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "ID предмета",
+                        "name": "item_id",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "description": "Данные покупки",
+                        "name": "request",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/checklist.MarkItemDTO"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Возвращает статус success",
+                        "schema": {
+                            "$ref": "#/definitions/api-gateway_pkg_api_v1.MarkItemPurchasedResponse"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/api-gateway_pkg_response.ErrorResponse"
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized",
+                        "schema": {
+                            "$ref": "#/definitions/api-gateway_pkg_response.ErrorResponse"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/api-gateway_pkg_response.ErrorResponse"
+                        }
+                    }
+                }
+            }
+        },
         "/v1/events/{event_id}/invites": {
             "post": {
                 "security": [
@@ -798,12 +1045,48 @@
                 }
             }
         },
+        "api-gateway_pkg_api_v1.AddChecklistItemResponse": {
+            "type": "object",
+            "properties": {
+                "item_id": {
+                    "type": "string"
+                }
+            }
+        },
         "api-gateway_pkg_api_v1.CancelEventResponse": {
             "type": "object",
             "properties": {
                 "success": {
                     "description": "Успешно/ не успешно",
                     "type": "boolean"
+                }
+            }
+        },
+        "api-gateway_pkg_api_v1.ChecklistItemInfo": {
+            "type": "object",
+            "properties": {
+                "buyer_id": {
+                    "description": "Опционально: id ответственного",
+                    "type": "string"
+                },
+                "id": {
+                    "type": "string"
+                },
+                "is_purchased": {
+                    "description": "Опционально: статус: куплено/нет",
+                    "type": "boolean"
+                },
+                "quantity": {
+                    "description": "Количество товара",
+                    "type": "integer"
+                },
+                "title": {
+                    "description": "Название товара",
+                    "type": "string"
+                },
+                "unit": {
+                    "description": "Единица измерения",
+                    "type": "string"
                 }
             }
         },
@@ -856,6 +1139,18 @@
                 "title": {
                     "description": "Название мероприятия",
                     "type": "string"
+                }
+            }
+        },
+        "api-gateway_pkg_api_v1.GetEventChecklistResponse": {
+            "type": "object",
+            "properties": {
+                "checklist": {
+                    "description": "Список предметов в чеклисте",
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/api-gateway_pkg_api_v1.ChecklistItemInfo"
+                    }
                 }
             }
         },
@@ -917,6 +1212,23 @@
                 }
             }
         },
+        "api-gateway_pkg_api_v1.MarkItemPurchasedResponse": {
+            "type": "object",
+            "properties": {
+                "success": {
+                    "description": "успешно / не успешно",
+                    "type": "boolean"
+                }
+            }
+        },
+        "api-gateway_pkg_api_v1.RemoveChecklistItemResponse": {
+            "type": "object",
+            "properties": {
+                "success": {
+                    "type": "boolean"
+                }
+            }
+        },
         "api-gateway_pkg_api_v1.RemoveParticipantResponse": {
             "type": "object",
             "properties": {
@@ -947,6 +1259,31 @@
                             "type": "string"
                         }
                     }
+                }
+            }
+        },
+        "checklist.AddChecklistDTO": {
+            "type": "object",
+            "properties": {
+                "quantity": {
+                    "type": "integer"
+                },
+                "title": {
+                    "type": "string"
+                },
+                "unit": {
+                    "type": "string"
+                }
+            }
+        },
+        "checklist.MarkItemDTO": {
+            "type": "object",
+            "properties": {
+                "buyer_id": {
+                    "type": "string"
+                },
+                "is_purchased": {
+                    "type": "boolean"
                 }
             }
         },

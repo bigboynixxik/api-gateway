@@ -1,6 +1,7 @@
 package app
 
 import (
+	"api-gateway/internal/transport/handlers/checklist"
 	"api-gateway/internal/transport/handlers/interaction"
 	"api-gateway/internal/transport/handlers/participants"
 	"context"
@@ -76,6 +77,7 @@ func NewApp(_ context.Context) (*App, error) {
 	authHandler := authorization.NewAuthHandler(authClient)
 	interactionHandler := interaction.NewHandlerInteraction(eventClient)
 	participantsHandler := participants.NewHandlerParticipant(eventClient, authClient)
+	checklistHandler := checklist.NewHandlerChecklist(eventClient)
 
 	mux := http.NewServeMux()
 
@@ -99,6 +101,11 @@ func NewApp(_ context.Context) (*App, error) {
 
 	mux.HandleFunc("GET /v1/events/{event_id}/participants", participantsHandler.GetEventParticipant)
 	mux.HandleFunc("DELETE /v1/events/{event_id}/participants/{participant_id}", authMW.AuthMiddleware(participantsHandler.RemoveParticipant))
+
+	mux.HandleFunc("GET /v1/events/{event_id}/checklist", authMW.AuthMiddleware(checklistHandler.GetEventChecklist))
+	mux.HandleFunc("POST /v1/events/{event_id}/checklist", authMW.AuthMiddleware(checklistHandler.AddChecklistItem))
+	mux.HandleFunc("DELETE /v1/events/{event_id}/checklist/{item_id}", authMW.AuthMiddleware(checklistHandler.RemoveChecklistItem))
+	mux.HandleFunc("POST /v1/events/{event_id}/checklist/{item_id}/purchase", authMW.AuthMiddleware(checklistHandler.MarkItemPurchased))
 
 	httpServer := &http.Server{
 		Addr:    ":" + cfg.HTTPPort,

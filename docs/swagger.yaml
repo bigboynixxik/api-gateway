@@ -28,11 +28,36 @@ definitions:
       name:
         type: string
     type: object
+  api-gateway_pkg_api_v1.AddChecklistItemResponse:
+    properties:
+      item_id:
+        type: string
+    type: object
   api-gateway_pkg_api_v1.CancelEventResponse:
     properties:
       success:
         description: Успешно/ не успешно
         type: boolean
+    type: object
+  api-gateway_pkg_api_v1.ChecklistItemInfo:
+    properties:
+      buyer_id:
+        description: 'Опционально: id ответственного'
+        type: string
+      id:
+        type: string
+      is_purchased:
+        description: 'Опционально: статус: куплено/нет'
+        type: boolean
+      quantity:
+        description: Количество товара
+        type: integer
+      title:
+        description: Название товара
+        type: string
+      unit:
+        description: Единица измерения
+        type: string
     type: object
   api-gateway_pkg_api_v1.CreateEventResponse:
     properties:
@@ -67,6 +92,14 @@ definitions:
       title:
         description: Название мероприятия
         type: string
+    type: object
+  api-gateway_pkg_api_v1.GetEventChecklistResponse:
+    properties:
+      checklist:
+        description: Список предметов в чеклисте
+        items:
+          $ref: '#/definitions/api-gateway_pkg_api_v1.ChecklistItemInfo'
+        type: array
     type: object
   api-gateway_pkg_api_v1.GetEventResponse:
     properties:
@@ -105,6 +138,17 @@ definitions:
           $ref: '#/definitions/api-gateway_pkg_api_v1.EventInfo'
         type: array
     type: object
+  api-gateway_pkg_api_v1.MarkItemPurchasedResponse:
+    properties:
+      success:
+        description: успешно / не успешно
+        type: boolean
+    type: object
+  api-gateway_pkg_api_v1.RemoveChecklistItemResponse:
+    properties:
+      success:
+        type: boolean
+    type: object
   api-gateway_pkg_api_v1.RemoveParticipantResponse:
     properties:
       success:
@@ -125,6 +169,22 @@ definitions:
           message:
             type: string
         type: object
+    type: object
+  checklist.AddChecklistDTO:
+    properties:
+      quantity:
+        type: integer
+      title:
+        type: string
+      unit:
+        type: string
+    type: object
+  checklist.MarkItemDTO:
+    properties:
+      buyer_id:
+        type: string
+      is_purchased:
+        type: boolean
     type: object
   internal_transport_handlers_authorization.GetUsersInfoDTO:
     properties:
@@ -524,6 +584,165 @@ paths:
       summary: Обновить мероприятие
       tags:
       - events
+  /v1/events/{event_id}/checklist:
+    get:
+      consumes:
+      - application/json
+      parameters:
+      - description: ID мероприятия
+        in: path
+        name: event_id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Возвращает список предметов в чеклисте
+          schema:
+            $ref: '#/definitions/api-gateway_pkg_api_v1.GetEventChecklistResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/api-gateway_pkg_response.ErrorResponse'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/api-gateway_pkg_response.ErrorResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/api-gateway_pkg_response.ErrorResponse'
+      security:
+      - BearerAuth: []
+      summary: Получить чеклист мероприятия
+      tags:
+      - interaction
+    post:
+      consumes:
+      - application/json
+      parameters:
+      - description: ID мероприятия
+        in: path
+        name: event_id
+        required: true
+        type: string
+      - description: Данные предмета
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/checklist.AddChecklistDTO'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Возвращает id созданного товара в чеклисте
+          schema:
+            $ref: '#/definitions/api-gateway_pkg_api_v1.AddChecklistItemResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/api-gateway_pkg_response.ErrorResponse'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/api-gateway_pkg_response.ErrorResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/api-gateway_pkg_response.ErrorResponse'
+      security:
+      - BearerAuth: []
+      summary: Добавить предмет в чеклист ивента
+      tags:
+      - interaction
+  /v1/events/{event_id}/checklist/{item_id}:
+    delete:
+      consumes:
+      - application/json
+      parameters:
+      - description: ID мероприятия
+        in: path
+        name: event_id
+        required: true
+        type: string
+      - description: ID предмета
+        in: path
+        name: item_id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Возвращает id созданного товара в чеклисте
+          schema:
+            $ref: '#/definitions/api-gateway_pkg_api_v1.RemoveChecklistItemResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/api-gateway_pkg_response.ErrorResponse'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/api-gateway_pkg_response.ErrorResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/api-gateway_pkg_response.ErrorResponse'
+      security:
+      - BearerAuth: []
+      summary: Удалить предмет из чеклиста
+      tags:
+      - interaction
+  /v1/events/{event_id}/checklist/{item_id}/purchase:
+    patch:
+      consumes:
+      - application/json
+      description: Также можно добавить id ответственного за покупку (buyer_id), а
+        также передать стату куплено/не куплно
+      parameters:
+      - description: ID мероприятия
+        in: path
+        name: event_id
+        required: true
+        type: string
+      - description: ID предмета
+        in: path
+        name: item_id
+        required: true
+        type: string
+      - description: Данные покупки
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/checklist.MarkItemDTO'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Возвращает статус success
+          schema:
+            $ref: '#/definitions/api-gateway_pkg_api_v1.MarkItemPurchasedResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/api-gateway_pkg_response.ErrorResponse'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/api-gateway_pkg_response.ErrorResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/api-gateway_pkg_response.ErrorResponse'
+      security:
+      - BearerAuth: []
+      summary: Пометить предмет как купленный в чеклисте
+      tags:
+      - interaction
   /v1/events/{event_id}/invites:
     post:
       consumes:
