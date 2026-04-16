@@ -105,6 +105,12 @@ definitions:
           $ref: '#/definitions/api-gateway_pkg_api_v1.EventInfo'
         type: array
     type: object
+  api-gateway_pkg_api_v1.RemoveParticipantResponse:
+    properties:
+      success:
+        description: Успешно/ не успешно
+        type: boolean
+    type: object
   api-gateway_pkg_api_v1.UpdateEventResponse:
     properties:
       event:
@@ -175,6 +181,19 @@ definitions:
       starts_at:
         type: string
       title:
+        type: string
+    type: object
+  internal_transport_handlers_participants.ParticipantResponseDTO:
+    properties:
+      login:
+        type: string
+      name:
+        type: string
+      role:
+        type: string
+      status:
+        type: string
+      user_id:
         type: string
     type: object
   timestamppb.Timestamp:
@@ -562,6 +581,68 @@ paths:
       summary: Покинуть ивент
       tags:
       - interaction
+  /v1/events/{event_id}/participants:
+    get:
+      consumes:
+      - application/json
+      parameters:
+      - description: ID мероприятия
+        in: path
+        name: event_id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Возвращает список участников с именами
+          schema:
+            items:
+              $ref: '#/definitions/internal_transport_handlers_participants.ParticipantResponseDTO'
+            type: array
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/api-gateway_pkg_response.ErrorResponse'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/api-gateway_pkg_response.ErrorResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/api-gateway_pkg_response.ErrorResponse'
+      summary: Получить список участников ивента
+      tags:
+      - participants
+  /v1/events/{event_id}/participants/{participant_id}:
+    delete:
+      consumes:
+      - application/json
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Возвращает статус succes
+          schema:
+            $ref: '#/definitions/api-gateway_pkg_api_v1.RemoveParticipantResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/api-gateway_pkg_response.ErrorResponse'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/api-gateway_pkg_response.ErrorResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/api-gateway_pkg_response.ErrorResponse'
+      security:
+      - BearerAuth: []
+      summary: удалить участника из мероприятия
+      tags:
+      - participants
   /v1/events/join:
     post:
       consumes:
