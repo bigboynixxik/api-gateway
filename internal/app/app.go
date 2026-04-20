@@ -1,9 +1,6 @@
 package app
 
 import (
-	"api-gateway/internal/transport/handlers/checklist"
-	"api-gateway/internal/transport/handlers/interaction"
-	"api-gateway/internal/transport/handlers/participants"
 	"context"
 	"errors"
 	"fmt"
@@ -13,6 +10,10 @@ import (
 	"os/signal"
 	"syscall"
 	"time"
+
+	"api-gateway/internal/transport/handlers/checklist"
+	"api-gateway/internal/transport/handlers/interaction"
+	"api-gateway/internal/transport/handlers/participants"
 
 	"api-gateway/internal/transport/handlers"
 	"api-gateway/internal/transport/handlers/authorization"
@@ -91,7 +92,7 @@ func NewApp(_ context.Context) (*App, error) {
 	mux.HandleFunc("GET /v1/events/my", authMW.AuthMiddleware(eventHandler.ListUserEvents))
 	mux.HandleFunc("POST /v1/events", authMW.AuthMiddleware(eventHandler.CreateEvent))
 	mux.HandleFunc("PATCH /v1/events/{event_id}", authMW.AuthMiddleware(eventHandler.UpdateEvent))
-	mux.HandleFunc("DELELTE /v1/events/{event_id}", authMW.AuthMiddleware(eventHandler.CancelEvent))
+	mux.HandleFunc("DELETE /v1/events/{event_id}", authMW.AuthMiddleware(eventHandler.CancelEvent))
 	mux.HandleFunc("GET /v1/events/{event_id}", eventHandler.GetEvent)
 	mux.HandleFunc("GET /v1/events", eventHandler.ListEvents)
 
@@ -106,6 +107,8 @@ func NewApp(_ context.Context) (*App, error) {
 	mux.HandleFunc("POST /v1/events/{event_id}/checklist", authMW.AuthMiddleware(checklistHandler.AddChecklistItem))
 	mux.HandleFunc("DELETE /v1/events/{event_id}/checklist/{item_id}", authMW.AuthMiddleware(checklistHandler.RemoveChecklistItem))
 	mux.HandleFunc("POST /v1/events/{event_id}/checklist/{item_id}/purchase", authMW.AuthMiddleware(checklistHandler.MarkItemPurchased))
+
+	mux.HandleFunc("POST /v1/users/telegram_link", authMW.AuthMiddleware(authHandler.GetTelegramLink))
 
 	httpServer := &http.Server{
 		Addr:    ":" + cfg.HTTPPort,

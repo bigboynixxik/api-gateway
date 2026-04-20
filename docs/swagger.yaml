@@ -170,21 +170,10 @@ definitions:
             type: string
         type: object
     type: object
-  checklist.AddChecklistDTO:
+  internal_transport_handlers_authorization.GetTelegramResponse:
     properties:
-      quantity:
-        type: integer
-      title:
+      link:
         type: string
-      unit:
-        type: string
-    type: object
-  checklist.MarkItemDTO:
-    properties:
-      buyer_id:
-        type: string
-      is_purchased:
-        type: boolean
     type: object
   internal_transport_handlers_authorization.GetUsersInfoDTO:
     properties:
@@ -210,6 +199,22 @@ definitions:
         type: string
       password:
         type: string
+    type: object
+  internal_transport_handlers_checklist.AddChecklistDTO:
+    properties:
+      quantity:
+        type: integer
+      title:
+        type: string
+      unit:
+        type: string
+    type: object
+  internal_transport_handlers_checklist.MarkItemDTO:
+    properties:
+      buyer_id:
+        type: string
+      is_purchased:
+        type: boolean
     type: object
   internal_transport_handlers_event.CreateEventDTO:
     properties:
@@ -632,7 +637,7 @@ paths:
         name: request
         required: true
         schema:
-          $ref: '#/definitions/checklist.AddChecklistDTO'
+          $ref: '#/definitions/internal_transport_handlers_checklist.AddChecklistDTO'
       produces:
       - application/json
       responses:
@@ -718,7 +723,7 @@ paths:
         name: request
         required: true
         schema:
-          $ref: '#/definitions/checklist.MarkItemDTO'
+          $ref: '#/definitions/internal_transport_handlers_checklist.MarkItemDTO'
       produces:
       - application/json
       responses:
@@ -919,6 +924,30 @@ paths:
       summary: Список мероприятий пользователя
       tags:
       - events
+  /v1/users/telegram_link:
+    post:
+      description: Генерирует уникальную ссылку с токеном для привязки аккаунта Telegram
+        к профилю пользователя. Ссылка одноразовая.
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Ссылка на бота
+          schema:
+            $ref: '#/definitions/internal_transport_handlers_authorization.GetTelegramResponse'
+        "401":
+          description: Пользователь не авторизован
+          schema:
+            $ref: '#/definitions/api-gateway_pkg_response.ErrorResponse'
+        "500":
+          description: Внутренняя ошибка сервера
+          schema:
+            $ref: '#/definitions/api-gateway_pkg_response.ErrorResponse'
+      security:
+      - BearerAuth: []
+      summary: Получить ссылку на Telegram-бота
+      tags:
+      - auth
 securityDefinitions:
   BearerAuth:
     description: API для сервиса мероприятий Eventify

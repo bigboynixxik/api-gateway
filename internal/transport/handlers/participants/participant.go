@@ -1,13 +1,14 @@
 package participants
 
 import (
+	"log/slog"
+	"net/http"
+
 	"api-gateway/internal/transport/middleware"
 	auth "api-gateway/pkg/api/auth/v1"
 	api "api-gateway/pkg/api/v1"
 	"api-gateway/pkg/logger"
 	"api-gateway/pkg/response"
-	"log/slog"
-	"net/http"
 
 	"github.com/google/uuid"
 	"google.golang.org/grpc/metadata"

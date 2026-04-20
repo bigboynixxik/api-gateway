@@ -657,7 +657,7 @@ const docTemplate = `{
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/checklist.AddChecklistDTO"
+                            "$ref": "#/definitions/internal_transport_handlers_checklist.AddChecklistDTO"
                         }
                     }
                 ],
@@ -789,7 +789,7 @@ const docTemplate = `{
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/checklist.MarkItemDTO"
+                            "$ref": "#/definitions/internal_transport_handlers_checklist.MarkItemDTO"
                         }
                     }
                 ],
@@ -1002,6 +1002,43 @@ const docTemplate = `{
                     },
                     "500": {
                         "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/api-gateway_pkg_response.ErrorResponse"
+                        }
+                    }
+                }
+            }
+        },
+        "/v1/users/telegram_link": {
+            "post": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "description": "Генерирует уникальную ссылку с токеном для привязки аккаунта Telegram к профилю пользователя. Ссылка одноразовая.",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "auth"
+                ],
+                "summary": "Получить ссылку на Telegram-бота",
+                "responses": {
+                    "200": {
+                        "description": "Ссылка на бота",
+                        "schema": {
+                            "$ref": "#/definitions/internal_transport_handlers_authorization.GetTelegramResponse"
+                        }
+                    },
+                    "401": {
+                        "description": "Пользователь не авторизован",
+                        "schema": {
+                            "$ref": "#/definitions/api-gateway_pkg_response.ErrorResponse"
+                        }
+                    },
+                    "500": {
+                        "description": "Внутренняя ошибка сервера",
                         "schema": {
                             "$ref": "#/definitions/api-gateway_pkg_response.ErrorResponse"
                         }
@@ -1272,28 +1309,11 @@ const docTemplate = `{
                 }
             }
         },
-        "checklist.AddChecklistDTO": {
+        "internal_transport_handlers_authorization.GetTelegramResponse": {
             "type": "object",
             "properties": {
-                "quantity": {
-                    "type": "integer"
-                },
-                "title": {
+                "link": {
                     "type": "string"
-                },
-                "unit": {
-                    "type": "string"
-                }
-            }
-        },
-        "checklist.MarkItemDTO": {
-            "type": "object",
-            "properties": {
-                "buyer_id": {
-                    "type": "string"
-                },
-                "is_purchased": {
-                    "type": "boolean"
                 }
             }
         },
@@ -1333,6 +1353,31 @@ const docTemplate = `{
                 },
                 "password": {
                     "type": "string"
+                }
+            }
+        },
+        "internal_transport_handlers_checklist.AddChecklistDTO": {
+            "type": "object",
+            "properties": {
+                "quantity": {
+                    "type": "integer"
+                },
+                "title": {
+                    "type": "string"
+                },
+                "unit": {
+                    "type": "string"
+                }
+            }
+        },
+        "internal_transport_handlers_checklist.MarkItemDTO": {
+            "type": "object",
+            "properties": {
+                "buyer_id": {
+                    "type": "string"
+                },
+                "is_purchased": {
+                    "type": "boolean"
                 }
             }
         },

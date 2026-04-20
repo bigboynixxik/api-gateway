@@ -1,12 +1,13 @@
 package checklist
 
 import (
+	"encoding/json"
+	"net/http"
+
 	"api-gateway/internal/transport/middleware"
 	api "api-gateway/pkg/api/v1"
 	"api-gateway/pkg/logger"
 	"api-gateway/pkg/response"
-	"encoding/json"
-	"net/http"
 
 	"github.com/google/uuid"
 	"google.golang.org/grpc/metadata"

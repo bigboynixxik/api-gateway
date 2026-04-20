@@ -5,12 +5,18 @@ import (
 	"log/slog"
 	"net/http"
 
+	"api-gateway/internal/transport/middleware"
+
 	auth "api-gateway/pkg/api/auth/v1"
 	"api-gateway/pkg/logger"
 	"api-gateway/pkg/response"
 
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"
+)
+
+const (
+	tg_link = "https://t.me/eventify_project_Bot"
 )
 
 type AuthHandler struct {
@@ -215,4 +221,52 @@ func (ah *AuthHandler) GetUserInfoByLogin(w http.ResponseWriter, r *http.Request
 		}
 	}
 	response.JSON(w, http.StatusOK, resp)
+}
+
+type GetTelegramResponse struct {
+	Link string `json:"link"`
+}
+
+// GetTelegramLink godoc
+// @Summary Получить ссылку на Telegram-бота
+// @Description Генерирует уникальную ссылку с токеном для привязки аккаунта Telegram к профилю пользователя. Ссылка одноразовая.
+// @Tags auth
+// @Produce json
+// @Security BearerAuth
+// @Success 200 {object} GetTelegramResponse "Ссылка на бота"
+// @Failure 401 {object} response.ErrorResponse "Пользователь не авторизован"
+// @Failure 500 {object} response.ErrorResponse "Внутренняя ошибка сервера"
+// @Router /v1/users/telegram_link [post]
+func (ah *AuthHandler) GetTelegramLink(w http.ResponseWriter, r *http.Request) {
+	l := logger.FromContext(r.Context())
+
+	userId, ok := r.Context().Value(middleware.UserIDKey).(string)
+	if !ok {
+		l.Error("authHandler.GetTelegramLink user not found in context")
+		response.Error(w, http.StatusUnauthorized, "UNAUTHORIZED", "unauthorized")
+		return
+	}
+	grpcReq := auth.GenerateTgLinkRequest{
+		UserId: userId,
+	}
+	resp, err := ah.authClient.GenerateTgLink(r.Context(), &grpcReq)
+	if err != nil {
+		switch status.Code(err) {
+		case codes.NotFound:
+			l.Error("authHandler.GetTelegramLink user not found",
+				slog.String("error", err.Error()))
+			response.Error(w, http.StatusNotFound, "USER_NOT_FOUND", "user not found")
+			return
+		default:
+			l.Error("authHandler.GetTelegramLink internal error",
+				slog.String("error", err.Error()))
+			response.Error(w, http.StatusInternalServerError, "INTERNAL_ERROR", "internal server error")
+			return
+		}
+	}
+	link := tg_link + "?start=" + resp.GetToken()
+	tgResp := &GetTelegramResponse{
+		Link: link,
+	}
+	response.JSON(w, http.StatusOK, tgResp)
 }
