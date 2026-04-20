@@ -14,6 +14,10 @@ service AuthService {
   rpc GetUsersInfo(GetUsersInfoRequest) returns (GetUsersInfoResponse);
   // Получение информации о пользователе по логину
   rpc GetUserInfoByLogin(GetUserInfoByLoginRequest) returns (UserInfo);
+  // Создать токен для привязки телеграма
+  rpc GenerateTgLink(GenerateTgLinkRequest) returns (GenerateTgLinkResponse);
+  // Привязать chat_id из телеграма к юзеру
+  rpc BindTelegram(BindTelegramRequest) returns (BindTelegramResponse);
 }
 
 // Информация об юзере
@@ -63,4 +67,23 @@ message LoginResponse {
 
 message GetUserInfoByLoginRequest {
   string login = 1;
+}
+// Запрос на создание токена для привязки аккаунта к тг
+message GenerateTgLinkRequest {
+  string user_id = 1;
+}
+
+// Ответ на запрос создания токена для тг - сам токен
+message GenerateTgLinkResponse {
+  string token = 1;
+}
+
+// Запрос на привязку chat_id тг по токену
+message BindTelegramRequest {
+  string token = 1;
+  int64 chat_id = 2;
+}
+
+message BindTelegramResponse {
+  bool success = 1;
 }

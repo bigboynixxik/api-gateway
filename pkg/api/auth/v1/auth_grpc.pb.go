@@ -23,6 +23,8 @@ const (
 	AuthService_Login_FullMethodName              = "/auth.AuthService/Login"
 	AuthService_GetUsersInfo_FullMethodName       = "/auth.AuthService/GetUsersInfo"
 	AuthService_GetUserInfoByLogin_FullMethodName = "/auth.AuthService/GetUserInfoByLogin"
+	AuthService_GenerateTgLink_FullMethodName     = "/auth.AuthService/GenerateTgLink"
+	AuthService_BindTelegram_FullMethodName       = "/auth.AuthService/BindTelegram"
 )
 
 // AuthServiceClient is the client API for AuthService service.
@@ -39,6 +41,10 @@ type AuthServiceClient interface {
 	GetUsersInfo(ctx context.Context, in *GetUsersInfoRequest, opts ...grpc.CallOption) (*GetUsersInfoResponse, error)
 	// Получение информации о пользователе по логину
 	GetUserInfoByLogin(ctx context.Context, in *GetUserInfoByLoginRequest, opts ...grpc.CallOption) (*UserInfo, error)
+	// Создать токен для привязки телеграма
+	GenerateTgLink(ctx context.Context, in *GenerateTgLinkRequest, opts ...grpc.CallOption) (*GenerateTgLinkResponse, error)
+	// Привязать chat_id из телеграма к юзеру
+	BindTelegram(ctx context.Context, in *BindTelegramRequest, opts ...grpc.CallOption) (*BindTelegramResponse, error)
 }
 
 type authServiceClient struct {
@@ -89,6 +95,26 @@ func (c *authServiceClient) GetUserInfoByLogin(ctx context.Context, in *GetUserI
 	return out, nil
 }
 
+func (c *authServiceClient) GenerateTgLink(ctx context.Context, in *GenerateTgLinkRequest, opts ...grpc.CallOption) (*GenerateTgLinkResponse, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(GenerateTgLinkResponse)
+	err := c.cc.Invoke(ctx, AuthService_GenerateTgLink_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *authServiceClient) BindTelegram(ctx context.Context, in *BindTelegramRequest, opts ...grpc.CallOption) (*BindTelegramResponse, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(BindTelegramResponse)
+	err := c.cc.Invoke(ctx, AuthService_BindTelegram_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
 // AuthServiceServer is the server API for AuthService service.
 // All implementations must embed UnimplementedAuthServiceServer
 // for forward compatibility.
@@ -103,6 +129,10 @@ type AuthServiceServer interface {
 	GetUsersInfo(context.Context, *GetUsersInfoRequest) (*GetUsersInfoResponse, error)
 	// Получение информации о пользователе по логину
 	GetUserInfoByLogin(context.Context, *GetUserInfoByLoginRequest) (*UserInfo, error)
+	// Создать токен для привязки телеграма
+	GenerateTgLink(context.Context, *GenerateTgLinkRequest) (*GenerateTgLinkResponse, error)
+	// Привязать chat_id из телеграма к юзеру
+	BindTelegram(context.Context, *BindTelegramRequest) (*BindTelegramResponse, error)
 	mustEmbedUnimplementedAuthServiceServer()
 }
 
@@ -124,6 +154,12 @@ func (UnimplementedAuthServiceServer) GetUsersInfo(context.Context, *GetUsersInf
 }
 func (UnimplementedAuthServiceServer) GetUserInfoByLogin(context.Context, *GetUserInfoByLoginRequest) (*UserInfo, error) {
 	return nil, status.Error(codes.Unimplemented, "method GetUserInfoByLogin not implemented")
+}
+func (UnimplementedAuthServiceServer) GenerateTgLink(context.Context, *GenerateTgLinkRequest) (*GenerateTgLinkResponse, error) {
+	return nil, status.Error(codes.Unimplemented, "method GenerateTgLink not implemented")
+}
+func (UnimplementedAuthServiceServer) BindTelegram(context.Context, *BindTelegramRequest) (*BindTelegramResponse, error) {
+	return nil, status.Error(codes.Unimplemented, "method BindTelegram not implemented")
 }
 func (UnimplementedAuthServiceServer) mustEmbedUnimplementedAuthServiceServer() {}
 func (UnimplementedAuthServiceServer) testEmbeddedByValue()                     {}
@@ -218,6 +254,42 @@ func _AuthService_GetUserInfoByLogin_Handler(srv interface{}, ctx context.Contex
 	return interceptor(ctx, in, info, handler)
 }
 
+func _AuthService_GenerateTgLink_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(GenerateTgLinkRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(AuthServiceServer).GenerateTgLink(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: AuthService_GenerateTgLink_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(AuthServiceServer).GenerateTgLink(ctx, req.(*GenerateTgLinkRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _AuthService_BindTelegram_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(BindTelegramRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(AuthServiceServer).BindTelegram(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: AuthService_BindTelegram_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(AuthServiceServer).BindTelegram(ctx, req.(*BindTelegramRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
 // AuthService_ServiceDesc is the grpc.ServiceDesc for AuthService service.
 // It's only intended for direct use with grpc.RegisterService,
 // and not to be introspected or modified (even as a copy)
@@ -240,6 +312,14 @@ var AuthService_ServiceDesc = grpc.ServiceDesc{
 		{
 			MethodName: "GetUserInfoByLogin",
 			Handler:    _AuthService_GetUserInfoByLogin_Handler,
+		},
+		{
+			MethodName: "GenerateTgLink",
+			Handler:    _AuthService_GenerateTgLink_Handler,
+		},
+		{
+			MethodName: "BindTelegram",
+			Handler:    _AuthService_BindTelegram_Handler,
 		},
 	},
 	Streams:  []grpc.StreamDesc{},

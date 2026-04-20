@@ -432,6 +432,193 @@ func (x *GetUserInfoByLoginRequest) GetLogin() string {
 	return ""
 }
 
+// Запрос на создание токена для привязки аккаунта к тг
+type GenerateTgLinkRequest struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	UserId        string                 `protobuf:"bytes,1,opt,name=user_id,json=userId,proto3" json:"user_id,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *GenerateTgLinkRequest) Reset() {
+	*x = GenerateTgLinkRequest{}
+	mi := &file_auth_proto_msgTypes[8]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *GenerateTgLinkRequest) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*GenerateTgLinkRequest) ProtoMessage() {}
+
+func (x *GenerateTgLinkRequest) ProtoReflect() protoreflect.Message {
+	mi := &file_auth_proto_msgTypes[8]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use GenerateTgLinkRequest.ProtoReflect.Descriptor instead.
+func (*GenerateTgLinkRequest) Descriptor() ([]byte, []int) {
+	return file_auth_proto_rawDescGZIP(), []int{8}
+}
+
+func (x *GenerateTgLinkRequest) GetUserId() string {
+	if x != nil {
+		return x.UserId
+	}
+	return ""
+}
+
+// Ответ на запрос создания токена для тг - сам токен
+type GenerateTgLinkResponse struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	Token         string                 `protobuf:"bytes,1,opt,name=token,proto3" json:"token,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *GenerateTgLinkResponse) Reset() {
+	*x = GenerateTgLinkResponse{}
+	mi := &file_auth_proto_msgTypes[9]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *GenerateTgLinkResponse) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*GenerateTgLinkResponse) ProtoMessage() {}
+
+func (x *GenerateTgLinkResponse) ProtoReflect() protoreflect.Message {
+	mi := &file_auth_proto_msgTypes[9]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use GenerateTgLinkResponse.ProtoReflect.Descriptor instead.
+func (*GenerateTgLinkResponse) Descriptor() ([]byte, []int) {
+	return file_auth_proto_rawDescGZIP(), []int{9}
+}
+
+func (x *GenerateTgLinkResponse) GetToken() string {
+	if x != nil {
+		return x.Token
+	}
+	return ""
+}
+
+// Запрос на привязку chat_id тг по токену
+type BindTelegramRequest struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	Token         string                 `protobuf:"bytes,1,opt,name=token,proto3" json:"token,omitempty"`
+	ChatId        int64                  `protobuf:"varint,2,opt,name=chat_id,json=chatId,proto3" json:"chat_id,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *BindTelegramRequest) Reset() {
+	*x = BindTelegramRequest{}
+	mi := &file_auth_proto_msgTypes[10]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *BindTelegramRequest) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*BindTelegramRequest) ProtoMessage() {}
+
+func (x *BindTelegramRequest) ProtoReflect() protoreflect.Message {
+	mi := &file_auth_proto_msgTypes[10]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use BindTelegramRequest.ProtoReflect.Descriptor instead.
+func (*BindTelegramRequest) Descriptor() ([]byte, []int) {
+	return file_auth_proto_rawDescGZIP(), []int{10}
+}
+
+func (x *BindTelegramRequest) GetToken() string {
+	if x != nil {
+		return x.Token
+	}
+	return ""
+}
+
+func (x *BindTelegramRequest) GetChatId() int64 {
+	if x != nil {
+		return x.ChatId
+	}
+	return 0
+}
+
+type BindTelegramResponse struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	Success       bool                   `protobuf:"varint,1,opt,name=success,proto3" json:"success,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *BindTelegramResponse) Reset() {
+	*x = BindTelegramResponse{}
+	mi := &file_auth_proto_msgTypes[11]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *BindTelegramResponse) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*BindTelegramResponse) ProtoMessage() {}
+
+func (x *BindTelegramResponse) ProtoReflect() protoreflect.Message {
+	mi := &file_auth_proto_msgTypes[11]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use BindTelegramResponse.ProtoReflect.Descriptor instead.
+func (*BindTelegramResponse) Descriptor() ([]byte, []int) {
+	return file_auth_proto_rawDescGZIP(), []int{11}
+}
+
+func (x *BindTelegramResponse) GetSuccess() bool {
+	if x != nil {
+		return x.Success
+	}
+	return false
+}
+
 var File_auth_proto protoreflect.FileDescriptor
 
 const file_auth_proto_rawDesc = "" +
@@ -463,12 +650,23 @@ const file_auth_proto_rawDesc = "" +
 	"\rLoginResponse\x12!\n" +
 	"\faccess_token\x18\x01 \x01(\tR\vaccessToken\"1\n" +
 	"\x19GetUserInfoByLoginRequest\x12\x14\n" +
-	"\x05login\x18\x01 \x01(\tR\x05login2\x88\x02\n" +
+	"\x05login\x18\x01 \x01(\tR\x05login\"0\n" +
+	"\x15GenerateTgLinkRequest\x12\x17\n" +
+	"\auser_id\x18\x01 \x01(\tR\x06userId\".\n" +
+	"\x16GenerateTgLinkResponse\x12\x14\n" +
+	"\x05token\x18\x01 \x01(\tR\x05token\"D\n" +
+	"\x13BindTelegramRequest\x12\x14\n" +
+	"\x05token\x18\x01 \x01(\tR\x05token\x12\x17\n" +
+	"\achat_id\x18\x02 \x01(\x03R\x06chatId\"0\n" +
+	"\x14BindTelegramResponse\x12\x18\n" +
+	"\asuccess\x18\x01 \x01(\bR\asuccess2\x9c\x03\n" +
 	"\vAuthService\x129\n" +
 	"\bRegister\x12\x15.auth.RegisterRequest\x1a\x16.auth.RegisterResponse\x120\n" +
 	"\x05Login\x12\x12.auth.LoginRequest\x1a\x13.auth.LoginResponse\x12E\n" +
 	"\fGetUsersInfo\x12\x19.auth.GetUsersInfoRequest\x1a\x1a.auth.GetUsersInfoResponse\x12E\n" +
-	"\x12GetUserInfoByLogin\x12\x1f.auth.GetUserInfoByLoginRequest\x1a\x0e.auth.UserInfoB\x11Z\x0fpkg/api/auth/v1b\x06proto3"
+	"\x12GetUserInfoByLogin\x12\x1f.auth.GetUserInfoByLoginRequest\x1a\x0e.auth.UserInfo\x12K\n" +
+	"\x0eGenerateTgLink\x12\x1b.auth.GenerateTgLinkRequest\x1a\x1c.auth.GenerateTgLinkResponse\x12E\n" +
+	"\fBindTelegram\x12\x19.auth.BindTelegramRequest\x1a\x1a.auth.BindTelegramResponseB\x11Z\x0fpkg/api/auth/v1b\x06proto3"
 
 var (
 	file_auth_proto_rawDescOnce sync.Once
@@ -482,7 +680,7 @@ func file_auth_proto_rawDescGZIP() []byte {
 	return file_auth_proto_rawDescData
 }
 
-var file_auth_proto_msgTypes = make([]protoimpl.MessageInfo, 9)
+var file_auth_proto_msgTypes = make([]protoimpl.MessageInfo, 13)
 var file_auth_proto_goTypes = []any{
 	(*UserInfo)(nil),                  // 0: auth.UserInfo
 	(*GetUsersInfoRequest)(nil),       // 1: auth.GetUsersInfoRequest
@@ -492,24 +690,32 @@ var file_auth_proto_goTypes = []any{
 	(*LoginRequest)(nil),              // 5: auth.LoginRequest
 	(*LoginResponse)(nil),             // 6: auth.LoginResponse
 	(*GetUserInfoByLoginRequest)(nil), // 7: auth.GetUserInfoByLoginRequest
-	nil,                               // 8: auth.GetUsersInfoResponse.UsersEntry
+	(*GenerateTgLinkRequest)(nil),     // 8: auth.GenerateTgLinkRequest
+	(*GenerateTgLinkResponse)(nil),    // 9: auth.GenerateTgLinkResponse
+	(*BindTelegramRequest)(nil),       // 10: auth.BindTelegramRequest
+	(*BindTelegramResponse)(nil),      // 11: auth.BindTelegramResponse
+	nil,                               // 12: auth.GetUsersInfoResponse.UsersEntry
 }
 var file_auth_proto_depIdxs = []int32{
-	8, // 0: auth.GetUsersInfoResponse.users:type_name -> auth.GetUsersInfoResponse.UsersEntry
-	0, // 1: auth.GetUsersInfoResponse.UsersEntry.value:type_name -> auth.UserInfo
-	3, // 2: auth.AuthService.Register:input_type -> auth.RegisterRequest
-	5, // 3: auth.AuthService.Login:input_type -> auth.LoginRequest
-	1, // 4: auth.AuthService.GetUsersInfo:input_type -> auth.GetUsersInfoRequest
-	7, // 5: auth.AuthService.GetUserInfoByLogin:input_type -> auth.GetUserInfoByLoginRequest
-	4, // 6: auth.AuthService.Register:output_type -> auth.RegisterResponse
-	6, // 7: auth.AuthService.Login:output_type -> auth.LoginResponse
-	2, // 8: auth.AuthService.GetUsersInfo:output_type -> auth.GetUsersInfoResponse
-	0, // 9: auth.AuthService.GetUserInfoByLogin:output_type -> auth.UserInfo
-	6, // [6:10] is the sub-list for method output_type
-	2, // [2:6] is the sub-list for method input_type
-	2, // [2:2] is the sub-list for extension type_name
-	2, // [2:2] is the sub-list for extension extendee
-	0, // [0:2] is the sub-list for field type_name
+	12, // 0: auth.GetUsersInfoResponse.users:type_name -> auth.GetUsersInfoResponse.UsersEntry
+	0,  // 1: auth.GetUsersInfoResponse.UsersEntry.value:type_name -> auth.UserInfo
+	3,  // 2: auth.AuthService.Register:input_type -> auth.RegisterRequest
+	5,  // 3: auth.AuthService.Login:input_type -> auth.LoginRequest
+	1,  // 4: auth.AuthService.GetUsersInfo:input_type -> auth.GetUsersInfoRequest
+	7,  // 5: auth.AuthService.GetUserInfoByLogin:input_type -> auth.GetUserInfoByLoginRequest
+	8,  // 6: auth.AuthService.GenerateTgLink:input_type -> auth.GenerateTgLinkRequest
+	10, // 7: auth.AuthService.BindTelegram:input_type -> auth.BindTelegramRequest
+	4,  // 8: auth.AuthService.Register:output_type -> auth.RegisterResponse
+	6,  // 9: auth.AuthService.Login:output_type -> auth.LoginResponse
+	2,  // 10: auth.AuthService.GetUsersInfo:output_type -> auth.GetUsersInfoResponse
+	0,  // 11: auth.AuthService.GetUserInfoByLogin:output_type -> auth.UserInfo
+	9,  // 12: auth.AuthService.GenerateTgLink:output_type -> auth.GenerateTgLinkResponse
+	11, // 13: auth.AuthService.BindTelegram:output_type -> auth.BindTelegramResponse
+	8,  // [8:14] is the sub-list for method output_type
+	2,  // [2:8] is the sub-list for method input_type
+	2,  // [2:2] is the sub-list for extension type_name
+	2,  // [2:2] is the sub-list for extension extendee
+	0,  // [0:2] is the sub-list for field type_name
 }
 
 func init() { file_auth_proto_init() }
@@ -523,7 +729,7 @@ func file_auth_proto_init() {
 			GoPackagePath: reflect.TypeOf(x{}).PkgPath(),
 			RawDescriptor: unsafe.Slice(unsafe.StringData(file_auth_proto_rawDesc), len(file_auth_proto_rawDesc)),
 			NumEnums:      0,
-			NumMessages:   9,
+			NumMessages:   13,
 			NumExtensions: 0,
 			NumServices:   1,
 		},
