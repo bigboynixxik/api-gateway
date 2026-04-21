@@ -51,7 +51,7 @@ type CreateEventDTO struct {
 // @Param request body CreateEventDTO true "Данные мероприятия"
 // @Success 200 {object} api.CreateEventResponse "Возвращает ID созданного ивента"
 // @Failure 400,401,500 {object} response.ErrorResponse
-// @Router /v1/events [post]
+// @Router /events [post]
 func (h *HandlerEvent) CreateEvent(w http.ResponseWriter, r *http.Request) {
 	l := logger.FromContext(r.Context())
 
@@ -102,7 +102,7 @@ func (h *HandlerEvent) CreateEvent(w http.ResponseWriter, r *http.Request) {
 // @Security BearerAuth
 // @Success 200 {object} api.ListUserEventsResponse "Возвращает список мероприятий пользователя"
 // @Failure 400,401,500 {object} response.ErrorResponse
-// @Router /v1/events/my [get]
+// @Router /events/my [get]
 func (h *HandlerEvent) ListUserEvents(w http.ResponseWriter, r *http.Request) {
 	l := logger.FromContext(r.Context())
 
@@ -130,9 +130,10 @@ func (h *HandlerEvent) ListUserEvents(w http.ResponseWriter, r *http.Request) {
 // @Tags events
 // @Accept json
 // @Produce json
+// @Param event_id path string true "ID мероприятия"
 // @Success 200 {object} api.GetEventResponse "Возвращает список: информация об ивенте"
 // @Failure 400,401,500 {object} response.ErrorResponse
-// @Router /v1/events/{event_id} [get]
+// @Router /events/{event_id} [get]
 func (h *HandlerEvent) GetEvent(w http.ResponseWriter, r *http.Request) {
 	l := logger.FromContext(r.Context())
 	eventID := r.PathValue("event_id")
@@ -172,7 +173,7 @@ type UpdateEventDTO struct {
 // @Param request body UpdateEventDTO true "Новые данные"
 // @Success 200 {object} api.UpdateEventResponse
 // @Failure 400,401,500 {object} response.ErrorResponse
-// @Router /v1/events/{event_id} [patch]
+// @Router /events/{event_id} [patch]
 func (h *HandlerEvent) UpdateEvent(w http.ResponseWriter, r *http.Request) {
 	l := logger.FromContext(r.Context())
 	userUUID, ok := r.Context().Value(middleware.UserIDKey).(uuid.UUID)
@@ -225,10 +226,11 @@ func (h *HandlerEvent) UpdateEvent(w http.ResponseWriter, r *http.Request) {
 // @Tags events
 // @Accept json
 // @Produce json
+// @Param event_id path string true "ID мероприятия"
 // @Security BearerAuth
 // @Success 200 {object} api.CancelEventResponse "Возвращает список: обновлённые данные об ивенте"
 // @Failure 400,401,500 {object} response.ErrorResponse
-// @Router /v1/events/{event_id} [delete]
+// @Router /events/{event_id} [delete]
 func (h *HandlerEvent) CancelEvent(w http.ResponseWriter, r *http.Request) {
 	l := logger.FromContext(r.Context())
 	userUUID, ok := r.Context().Value(middleware.UserIDKey).(uuid.UUID)
@@ -271,7 +273,7 @@ func (h *HandlerEvent) CancelEvent(w http.ResponseWriter, r *http.Request) {
 // @Param location_name query string false "Фильтр по локации"
 // @Success 200 {object} api.ListEventsResponse "Возвращает список ивентов"
 // @Failure 400,500 {object} response.ErrorResponse
-// @Router /v1/events [get]
+// @Router /events [get]
 func (h *HandlerEvent) ListEvents(w http.ResponseWriter, r *http.Request) {
 	l := logger.FromContext(r.Context())
 	var grpcReq api.ListEventsRequest
@@ -308,7 +310,7 @@ func (h *HandlerEvent) ListEvents(w http.ResponseWriter, r *http.Request) {
 		l.Info("ListEvents cache hit", slog.String("key", cacheKey))
 		w.Header().Set("Content-Type", "application/json")
 		w.Header().Set("X-Cache", "HIT") // Полезно для дебага на защите
-		w.Write(cachedData)
+		_, _ = w.Write(cachedData)
 		return
 	}
 

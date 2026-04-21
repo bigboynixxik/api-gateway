@@ -32,7 +32,7 @@ func NewHandlerChecklist(eventClient api.EventServiceClient) *HandlerChecklist {
 // @Security BearerAuth
 // @Success 200 {object} api.GetEventChecklistResponse "Возвращает список предметов в чеклисте"
 // @Failure 400,401,500 {object} response.ErrorResponse
-// @Router /v1/events/{event_id}/checklist [get]
+// @Router /events/{event_id}/checklist [get]
 func (h *HandlerChecklist) GetEventChecklist(w http.ResponseWriter, r *http.Request) {
 	l := logger.FromContext(r.Context())
 
@@ -81,7 +81,7 @@ type AddChecklistDTO struct {
 // @Security BearerAuth
 // @Success 200 {object} api.AddChecklistItemResponse "Возвращает id созданного товара в чеклисте"
 // @Failure 400,401,500 {object} response.ErrorResponse
-// @Router /v1/events/{event_id}/checklist [post]
+// @Router /events/{event_id}/checklist [post]
 func (h *HandlerChecklist) AddChecklistItem(w http.ResponseWriter, r *http.Request) {
 	l := logger.FromContext(r.Context())
 	userUUID, ok := r.Context().Value(middleware.UserIDKey).(uuid.UUID)
@@ -133,7 +133,7 @@ func (h *HandlerChecklist) AddChecklistItem(w http.ResponseWriter, r *http.Reque
 // @Security BearerAuth
 // @Success 200 {object} api.RemoveChecklistItemResponse "Возвращает id созданного товара в чеклисте"
 // @Failure 400,401,500 {object} response.ErrorResponse
-// @Router /v1/events/{event_id}/checklist/{item_id} [delete]
+// @Router /events/{event_id}/checklist/{item_id} [delete]
 func (h *HandlerChecklist) RemoveChecklistItem(w http.ResponseWriter, r *http.Request) {
 	l := logger.FromContext(r.Context())
 
@@ -189,7 +189,7 @@ type MarkItemDTO struct {
 // @Security BearerAuth
 // @Success 200 {object} api.MarkItemPurchasedResponse "Возвращает статус success"
 // @Failure 400,401,500 {object} response.ErrorResponse
-// @Router /v1/events/{event_id}/checklist/{item_id}/purchase [patch]
+// @Router /events/{event_id}/checklist/{item_id}/purchase [patch]
 func (h *HandlerChecklist) MarkItemPurchased(w http.ResponseWriter, r *http.Request) {
 	l := logger.FromContext(r.Context())
 	userUUID, ok := r.Context().Value(middleware.UserIDKey).(uuid.UUID)

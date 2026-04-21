@@ -248,6 +248,18 @@ definitions:
       title:
         type: string
     type: object
+  internal_transport_handlers_interaction.CreateLinkInviteDTO:
+    properties:
+      expires_at:
+        type: string
+      invite_type:
+        type: string
+    type: object
+  internal_transport_handlers_interaction.JoinEventDTO:
+    properties:
+      event_code:
+        type: string
+    type: object
   internal_transport_handlers_participants.ParticipantResponseDTO:
     properties:
       login:
@@ -282,75 +294,7 @@ info:
   contact: {}
   title: Eventify API Gateway
 paths:
-  /login:
-    post:
-      consumes:
-      - application/json
-      description: Принимает email и пароль, возвращает JWT токен
-      parameters:
-      - description: Данные для входа
-        in: body
-        name: request
-        required: true
-        schema:
-          $ref: '#/definitions/internal_transport_handlers_authorization.LoginDTO'
-      produces:
-      - application/json
-      responses:
-        "200":
-          description: вернёт access_token
-          schema:
-            $ref: '#/definitions/api-gateway_pkg_api_auth_v1.LoginResponse'
-        "400":
-          description: Неверный формат запроса
-          schema:
-            $ref: '#/definitions/api-gateway_pkg_response.ErrorResponse'
-        "401":
-          description: Неверный логин или пароль
-          schema:
-            $ref: '#/definitions/api-gateway_pkg_response.ErrorResponse'
-        "500":
-          description: Внутренняя ошибка сервера
-          schema:
-            $ref: '#/definitions/api-gateway_pkg_response.ErrorResponse'
-      summary: Авторизация пользователя
-      tags:
-      - auth
-  /register:
-    post:
-      consumes:
-      - application/json
-      description: Создает нового пользователя и возвращает JWT токен
-      parameters:
-      - description: Данные для регистрации
-        in: body
-        name: request
-        required: true
-        schema:
-          $ref: '#/definitions/internal_transport_handlers_authorization.RegisterDTO'
-      produces:
-      - application/json
-      responses:
-        "200":
-          description: вернет access_token
-          schema:
-            $ref: '#/definitions/api-gateway_pkg_api_auth_v1.RegisterResponse'
-        "400":
-          description: Неверный формат запроса
-          schema:
-            $ref: '#/definitions/api-gateway_pkg_response.ErrorResponse'
-        "409":
-          description: Пользователь с таким email или логином уже существует
-          schema:
-            $ref: '#/definitions/api-gateway_pkg_response.ErrorResponse'
-        "500":
-          description: Внутренняя ошибка сервера
-          schema:
-            $ref: '#/definitions/api-gateway_pkg_response.ErrorResponse'
-      summary: Регистрация пользователя
-      tags:
-      - auth
-  /v1/events:
+  /events:
     get:
       description: Получение списка ивентов. Поддерживает фильтрацию.
       parameters:
@@ -428,10 +372,16 @@ paths:
       summary: Создать новое мероприятие
       tags:
       - events
-  /v1/events/{event_id}:
+  /events/{event_id}:
     delete:
       consumes:
       - application/json
+      parameters:
+      - description: ID мероприятия
+        in: path
+        name: event_id
+        required: true
+        type: string
       produces:
       - application/json
       responses:
@@ -460,6 +410,12 @@ paths:
       consumes:
       - application/json
       description: отправляется id ивента, возвращается информация о нём
+      parameters:
+      - description: ID мероприятия
+        in: path
+        name: event_id
+        required: true
+        type: string
       produces:
       - application/json
       responses:
@@ -522,7 +478,7 @@ paths:
       summary: Обновить мероприятие
       tags:
       - events
-  /v1/events/{event_id}/checklist:
+  /events/{event_id}/checklist:
     get:
       consumes:
       - application/json
@@ -595,7 +551,7 @@ paths:
       summary: Добавить предмет в чеклист ивента
       tags:
       - checklist
-  /v1/events/{event_id}/checklist/{item_id}:
+  /events/{event_id}/checklist/{item_id}:
     delete:
       consumes:
       - application/json
@@ -634,7 +590,7 @@ paths:
       summary: Удалить предмет из чеклиста
       tags:
       - checklist
-  /v1/events/{event_id}/checklist/{item_id}/purchase:
+  /events/{event_id}/checklist/{item_id}/purchase:
     patch:
       consumes:
       - application/json
@@ -681,11 +637,23 @@ paths:
       summary: Пометить предмет как купленный в чеклисте
       tags:
       - checklist
-  /v1/events/{event_id}/invites:
+  /events/{event_id}/invites:
     post:
       consumes:
       - application/json
       description: Тип приглашения (single/multi/unlimited)
+      parameters:
+      - description: ID мероприятия
+        in: path
+        name: event_id
+        required: true
+        type: string
+      - description: Настройки инвайта
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/internal_transport_handlers_interaction.CreateLinkInviteDTO'
       produces:
       - application/json
       responses:
@@ -710,10 +678,16 @@ paths:
       summary: Создать ссылку приглашение
       tags:
       - interaction
-  /v1/events/{event_id}/leave:
+  /events/{event_id}/leave:
     post:
       consumes:
       - application/json
+      parameters:
+      - description: ID мероприятия
+        in: path
+        name: event_id
+        required: true
+        type: string
       produces:
       - application/json
       responses:
@@ -738,7 +712,7 @@ paths:
       summary: Покинуть ивент
       tags:
       - interaction
-  /v1/events/{event_id}/participants:
+  /events/{event_id}/participants:
     get:
       consumes:
       - application/json
@@ -772,10 +746,21 @@ paths:
       summary: Получить список участников ивента
       tags:
       - participants
-  /v1/events/{event_id}/participants/{participant_id}:
+  /events/{event_id}/participants/{participant_id}:
     delete:
       consumes:
       - application/json
+      parameters:
+      - description: ID мероприятия
+        in: path
+        name: event_id
+        required: true
+        type: string
+      - description: ID участника
+        in: path
+        name: participant_id
+        required: true
+        type: string
       produces:
       - application/json
       responses:
@@ -800,11 +785,18 @@ paths:
       summary: удалить участника из мероприятия
       tags:
       - participants
-  /v1/events/join:
+  /events/join:
     post:
       consumes:
       - application/json
       description: в теле запроса отправляется eventCode
+      parameters:
+      - description: Код мероприятия
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/internal_transport_handlers_interaction.JoinEventDTO'
       produces:
       - application/json
       responses:
@@ -829,7 +821,7 @@ paths:
       summary: Присоединиться к ивенту
       tags:
       - interaction
-  /v1/events/my:
+  /events/my:
     get:
       consumes:
       - application/json
@@ -857,7 +849,75 @@ paths:
       summary: Список мероприятий пользователя
       tags:
       - events
-  /v1/users/{login}:
+  /login:
+    post:
+      consumes:
+      - application/json
+      description: Принимает email и пароль, возвращает JWT токен
+      parameters:
+      - description: Данные для входа
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/internal_transport_handlers_authorization.LoginDTO'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: вернёт access_token
+          schema:
+            $ref: '#/definitions/api-gateway_pkg_api_auth_v1.LoginResponse'
+        "400":
+          description: Неверный формат запроса
+          schema:
+            $ref: '#/definitions/api-gateway_pkg_response.ErrorResponse'
+        "401":
+          description: Неверный логин или пароль
+          schema:
+            $ref: '#/definitions/api-gateway_pkg_response.ErrorResponse'
+        "500":
+          description: Внутренняя ошибка сервера
+          schema:
+            $ref: '#/definitions/api-gateway_pkg_response.ErrorResponse'
+      summary: Авторизация пользователя
+      tags:
+      - auth
+  /register:
+    post:
+      consumes:
+      - application/json
+      description: Создает нового пользователя и возвращает JWT токен
+      parameters:
+      - description: Данные для регистрации
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/internal_transport_handlers_authorization.RegisterDTO'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: вернет access_token
+          schema:
+            $ref: '#/definitions/api-gateway_pkg_api_auth_v1.RegisterResponse'
+        "400":
+          description: Неверный формат запроса
+          schema:
+            $ref: '#/definitions/api-gateway_pkg_response.ErrorResponse'
+        "409":
+          description: Пользователь с таким email или логином уже существует
+          schema:
+            $ref: '#/definitions/api-gateway_pkg_response.ErrorResponse'
+        "500":
+          description: Внутренняя ошибка сервера
+          schema:
+            $ref: '#/definitions/api-gateway_pkg_response.ErrorResponse'
+      summary: Регистрация пользователя
+      tags:
+      - auth
+  /users/{login}:
     get:
       description: Ищет пользователя по уникальному логину (никнейму) и возвращает
         его публичные данные
@@ -889,7 +949,7 @@ paths:
       summary: Получение публичного профиля пользователя
       tags:
       - users
-  /v1/users/info:
+  /users/info:
     post:
       consumes:
       - application/json
@@ -924,7 +984,7 @@ paths:
       summary: Получение информации о группе пользователей
       tags:
       - users
-  /v1/users/telegram_link:
+  /users/telegram_link:
     post:
       description: Генерирует уникальную ссылку с токеном для привязки аккаунта Telegram
         к профилю пользователя. Ссылка одноразовая.

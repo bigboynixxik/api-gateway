@@ -36,10 +36,11 @@ type JoinEventDTO struct {
 // @Tags interaction
 // @Accept json
 // @Produce json
+// @Param request body JoinEventDTO true "Код мероприятия"
 // @Security BearerAuth
 // @Success 200 {object} api.JoinEventResponse "Возвращает id ивента и статус успешно/безуспешно"
 // @Failure 400,401,500 {object} response.ErrorResponse
-// @Router /v1/events/join [post]
+// @Router /events/join [post]
 func (h *HandlerInteraction) JoinEvent(w http.ResponseWriter, r *http.Request) {
 	l := logger.FromContext(r.Context())
 
@@ -78,10 +79,11 @@ func (h *HandlerInteraction) JoinEvent(w http.ResponseWriter, r *http.Request) {
 // @Tags interaction
 // @Accept json
 // @Produce json
+// @Param event_id path string true "ID мероприятия"
 // @Security BearerAuth
 // @Success 200 {object} api.LeaveEventResponse "Возвращает статус (Успешно/не успешно)"
 // @Failure 400,401,500 {object} response.ErrorResponse
-// @Router /v1/events/{event_id}/leave [post]
+// @Router /events/{event_id}/leave [post]
 func (h *HandlerInteraction) LeaveEvent(w http.ResponseWriter, r *http.Request) {
 	l := logger.FromContext(r.Context())
 
@@ -123,10 +125,12 @@ type CreateLinkInviteDTO struct {
 // @Tags interaction
 // @Accept json
 // @Produce json
+// @Param event_id path string true "ID мероприятия"
+// @Param request body CreateLinkInviteDTO true "Настройки инвайта"
 // @Security BearerAuth
 // @Success 200 {object} api.CreateInviteLinkResponse "Возвращает event_code"
 // @Failure 400,401,500 {object} response.ErrorResponse
-// @Router /v1/events/{event_id}/invites [post]
+// @Router /events/{event_id}/invites [post]
 func (h *HandlerInteraction) CreateInviteLink(w http.ResponseWriter, r *http.Request) {
 	l := logger.FromContext(r.Context())
 

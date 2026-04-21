@@ -145,7 +145,7 @@ type GetUsersInfoDTO struct {
 // @Failure 400 {object} response.ErrorResponse "Неверный формат запроса"
 // @Failure 404 {object} response.ErrorResponse "Пользователи не найдены"
 // @Failure 500 {object} response.ErrorResponse "Внутренняя ошибка сервера"
-// @Router /v1/users/info [post]
+// @Router /users/info [post]
 func (ah *AuthHandler) GetUsersInfo(w http.ResponseWriter, r *http.Request) {
 	l := logger.FromContext(r.Context())
 
@@ -191,7 +191,7 @@ type UserInfoByLoginDTO struct {
 // @Failure 400 {object} response.ErrorResponse "Логин не передан"
 // @Failure 404 {object} response.ErrorResponse "Пользователь не найден"
 // @Failure 500 {object} response.ErrorResponse "Внутренняя ошибка сервера"
-// @Router /v1/users/{login} [get]
+// @Router /users/{login} [get]
 func (ah *AuthHandler) GetUserInfoByLogin(w http.ResponseWriter, r *http.Request) {
 	l := logger.FromContext(r.Context())
 
@@ -237,7 +237,7 @@ type GetTelegramResponse struct {
 // @Success 200 {object} GetTelegramResponse "Ссылка на бота"
 // @Failure 401 {object} response.ErrorResponse "Пользователь не авторизован"
 // @Failure 500 {object} response.ErrorResponse "Внутренняя ошибка сервера"
-// @Router /v1/users/telegram_link [post]
+// @Router /users/telegram_link [post]
 func (ah *AuthHandler) GetTelegramLink(w http.ResponseWriter, r *http.Request) {
 	l := logger.FromContext(r.Context())
 

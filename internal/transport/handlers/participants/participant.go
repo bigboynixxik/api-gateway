@@ -42,7 +42,7 @@ type ParticipantResponseDTO struct {
 // @Param event_id path string true "ID мероприятия"
 // @Success 200 {array} ParticipantResponseDTO "Возвращает список участников с именами"
 // @Failure 400,401,500 {object} response.ErrorResponse
-// @Router /v1/events/{event_id}/participants [get]
+// @Router /events/{event_id}/participants [get]
 func (h *HandlerParticipant) GetEventParticipant(w http.ResponseWriter, r *http.Request) {
 	l := logger.FromContext(r.Context())
 
@@ -106,10 +106,12 @@ func (h *HandlerParticipant) GetEventParticipant(w http.ResponseWriter, r *http.
 // @Tags participants
 // @Accept json
 // @Produce json
+// @Param event_id path string true "ID мероприятия"
+// @Param participant_id path string true "ID участника"
 // @Security BearerAuth
 // @Success 200 {object} api.RemoveParticipantResponse "Возвращает статус succes"
 // @Failure 400,401,500 {object} response.ErrorResponse
-// @Router /v1/events/{event_id}/participants/{participant_id} [delete]
+// @Router /events/{event_id}/participants/{participant_id} [delete]
 func (h *HandlerParticipant) RemoveParticipant(w http.ResponseWriter, r *http.Request) {
 	l := logger.FromContext(r.Context())
 	userUUID, ok := r.Context().Value(middleware.UserIDKey).(uuid.UUID)

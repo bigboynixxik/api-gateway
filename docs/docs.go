@@ -15,111 +15,7 @@ const docTemplate = `{
     "host": "{{.Host}}",
     "basePath": "{{.BasePath}}",
     "paths": {
-        "/login": {
-            "post": {
-                "description": "Принимает email и пароль, возвращает JWT токен",
-                "consumes": [
-                    "application/json"
-                ],
-                "produces": [
-                    "application/json"
-                ],
-                "tags": [
-                    "auth"
-                ],
-                "summary": "Авторизация пользователя",
-                "parameters": [
-                    {
-                        "description": "Данные для входа",
-                        "name": "request",
-                        "in": "body",
-                        "required": true,
-                        "schema": {
-                            "$ref": "#/definitions/internal_transport_handlers_authorization.LoginDTO"
-                        }
-                    }
-                ],
-                "responses": {
-                    "200": {
-                        "description": "вернёт access_token",
-                        "schema": {
-                            "$ref": "#/definitions/api-gateway_pkg_api_auth_v1.LoginResponse"
-                        }
-                    },
-                    "400": {
-                        "description": "Неверный формат запроса",
-                        "schema": {
-                            "$ref": "#/definitions/api-gateway_pkg_response.ErrorResponse"
-                        }
-                    },
-                    "401": {
-                        "description": "Неверный логин или пароль",
-                        "schema": {
-                            "$ref": "#/definitions/api-gateway_pkg_response.ErrorResponse"
-                        }
-                    },
-                    "500": {
-                        "description": "Внутренняя ошибка сервера",
-                        "schema": {
-                            "$ref": "#/definitions/api-gateway_pkg_response.ErrorResponse"
-                        }
-                    }
-                }
-            }
-        },
-        "/register": {
-            "post": {
-                "description": "Создает нового пользователя и возвращает JWT токен",
-                "consumes": [
-                    "application/json"
-                ],
-                "produces": [
-                    "application/json"
-                ],
-                "tags": [
-                    "auth"
-                ],
-                "summary": "Регистрация пользователя",
-                "parameters": [
-                    {
-                        "description": "Данные для регистрации",
-                        "name": "request",
-                        "in": "body",
-                        "required": true,
-                        "schema": {
-                            "$ref": "#/definitions/internal_transport_handlers_authorization.RegisterDTO"
-                        }
-                    }
-                ],
-                "responses": {
-                    "200": {
-                        "description": "вернет access_token",
-                        "schema": {
-                            "$ref": "#/definitions/api-gateway_pkg_api_auth_v1.RegisterResponse"
-                        }
-                    },
-                    "400": {
-                        "description": "Неверный формат запроса",
-                        "schema": {
-                            "$ref": "#/definitions/api-gateway_pkg_response.ErrorResponse"
-                        }
-                    },
-                    "409": {
-                        "description": "Пользователь с таким email или логином уже существует",
-                        "schema": {
-                            "$ref": "#/definitions/api-gateway_pkg_response.ErrorResponse"
-                        }
-                    },
-                    "500": {
-                        "description": "Внутренняя ошибка сервера",
-                        "schema": {
-                            "$ref": "#/definitions/api-gateway_pkg_response.ErrorResponse"
-                        }
-                    }
-                }
-            }
-        },
-        "/v1/events": {
+        "/events": {
             "get": {
                 "description": "Получение списка ивентов. Поддерживает фильтрацию.",
                 "produces": [
@@ -238,7 +134,7 @@ const docTemplate = `{
                 }
             }
         },
-        "/v1/events/join": {
+        "/events/join": {
             "post": {
                 "security": [
                     {
@@ -256,6 +152,17 @@ const docTemplate = `{
                     "interaction"
                 ],
                 "summary": "Присоединиться к ивенту",
+                "parameters": [
+                    {
+                        "description": "Код мероприятия",
+                        "name": "request",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/internal_transport_handlers_interaction.JoinEventDTO"
+                        }
+                    }
+                ],
                 "responses": {
                     "200": {
                         "description": "Возвращает id ивента и статус успешно/безуспешно",
@@ -284,7 +191,7 @@ const docTemplate = `{
                 }
             }
         },
-        "/v1/events/my": {
+        "/events/my": {
             "get": {
                 "security": [
                     {
@@ -329,7 +236,7 @@ const docTemplate = `{
                 }
             }
         },
-        "/v1/events/{event_id}": {
+        "/events/{event_id}": {
             "get": {
                 "description": "отправляется id ивента, возвращается информация о нём",
                 "consumes": [
@@ -342,6 +249,15 @@ const docTemplate = `{
                     "events"
                 ],
                 "summary": "получить информацию об ивенте",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "ID мероприятия",
+                        "name": "event_id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
                 "responses": {
                     "200": {
                         "description": "Возвращает список: информация об ивенте",
@@ -385,6 +301,15 @@ const docTemplate = `{
                     "events"
                 ],
                 "summary": "Отменить ивент",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "ID мероприятия",
+                        "name": "event_id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
                 "responses": {
                     "200": {
                         "description": "Возвращает список: обновлённые данные об ивенте",
@@ -475,7 +400,7 @@ const docTemplate = `{
                 }
             }
         },
-        "/v1/events/{event_id}/checklist": {
+        "/events/{event_id}/checklist": {
             "get": {
                 "security": [
                     {
@@ -590,7 +515,7 @@ const docTemplate = `{
                 }
             }
         },
-        "/v1/events/{event_id}/checklist/{item_id}": {
+        "/events/{event_id}/checklist/{item_id}": {
             "delete": {
                 "security": [
                     {
@@ -651,7 +576,7 @@ const docTemplate = `{
                 }
             }
         },
-        "/v1/events/{event_id}/checklist/{item_id}/purchase": {
+        "/events/{event_id}/checklist/{item_id}/purchase": {
             "patch": {
                 "security": [
                     {
@@ -722,7 +647,7 @@ const docTemplate = `{
                 }
             }
         },
-        "/v1/events/{event_id}/invites": {
+        "/events/{event_id}/invites": {
             "post": {
                 "security": [
                     {
@@ -740,6 +665,24 @@ const docTemplate = `{
                     "interaction"
                 ],
                 "summary": "Создать ссылку приглашение",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "ID мероприятия",
+                        "name": "event_id",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "description": "Настройки инвайта",
+                        "name": "request",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/internal_transport_handlers_interaction.CreateLinkInviteDTO"
+                        }
+                    }
+                ],
                 "responses": {
                     "200": {
                         "description": "Возвращает event_code",
@@ -768,7 +711,7 @@ const docTemplate = `{
                 }
             }
         },
-        "/v1/events/{event_id}/leave": {
+        "/events/{event_id}/leave": {
             "post": {
                 "security": [
                     {
@@ -785,6 +728,15 @@ const docTemplate = `{
                     "interaction"
                 ],
                 "summary": "Покинуть ивент",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "ID мероприятия",
+                        "name": "event_id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
                 "responses": {
                     "200": {
                         "description": "Возвращает статус (Успешно/не успешно)",
@@ -813,7 +765,7 @@ const docTemplate = `{
                 }
             }
         },
-        "/v1/events/{event_id}/participants": {
+        "/events/{event_id}/participants": {
             "get": {
                 "consumes": [
                     "application/json"
@@ -865,7 +817,7 @@ const docTemplate = `{
                 }
             }
         },
-        "/v1/events/{event_id}/participants/{participant_id}": {
+        "/events/{event_id}/participants/{participant_id}": {
             "delete": {
                 "security": [
                     {
@@ -882,6 +834,22 @@ const docTemplate = `{
                     "participants"
                 ],
                 "summary": "удалить участника из мероприятия",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "ID мероприятия",
+                        "name": "event_id",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "ID участника",
+                        "name": "participant_id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
                 "responses": {
                     "200": {
                         "description": "Возвращает статус succes",
@@ -910,7 +878,111 @@ const docTemplate = `{
                 }
             }
         },
-        "/v1/users/info": {
+        "/login": {
+            "post": {
+                "description": "Принимает email и пароль, возвращает JWT токен",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "auth"
+                ],
+                "summary": "Авторизация пользователя",
+                "parameters": [
+                    {
+                        "description": "Данные для входа",
+                        "name": "request",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/internal_transport_handlers_authorization.LoginDTO"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "вернёт access_token",
+                        "schema": {
+                            "$ref": "#/definitions/api-gateway_pkg_api_auth_v1.LoginResponse"
+                        }
+                    },
+                    "400": {
+                        "description": "Неверный формат запроса",
+                        "schema": {
+                            "$ref": "#/definitions/api-gateway_pkg_response.ErrorResponse"
+                        }
+                    },
+                    "401": {
+                        "description": "Неверный логин или пароль",
+                        "schema": {
+                            "$ref": "#/definitions/api-gateway_pkg_response.ErrorResponse"
+                        }
+                    },
+                    "500": {
+                        "description": "Внутренняя ошибка сервера",
+                        "schema": {
+                            "$ref": "#/definitions/api-gateway_pkg_response.ErrorResponse"
+                        }
+                    }
+                }
+            }
+        },
+        "/register": {
+            "post": {
+                "description": "Создает нового пользователя и возвращает JWT токен",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "auth"
+                ],
+                "summary": "Регистрация пользователя",
+                "parameters": [
+                    {
+                        "description": "Данные для регистрации",
+                        "name": "request",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/internal_transport_handlers_authorization.RegisterDTO"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "вернет access_token",
+                        "schema": {
+                            "$ref": "#/definitions/api-gateway_pkg_api_auth_v1.RegisterResponse"
+                        }
+                    },
+                    "400": {
+                        "description": "Неверный формат запроса",
+                        "schema": {
+                            "$ref": "#/definitions/api-gateway_pkg_response.ErrorResponse"
+                        }
+                    },
+                    "409": {
+                        "description": "Пользователь с таким email или логином уже существует",
+                        "schema": {
+                            "$ref": "#/definitions/api-gateway_pkg_response.ErrorResponse"
+                        }
+                    },
+                    "500": {
+                        "description": "Внутренняя ошибка сервера",
+                        "schema": {
+                            "$ref": "#/definitions/api-gateway_pkg_response.ErrorResponse"
+                        }
+                    }
+                }
+            }
+        },
+        "/users/info": {
             "post": {
                 "description": "Возвращает мапу с данными пользователей по переданному массиву ID",
                 "consumes": [
@@ -962,7 +1034,7 @@ const docTemplate = `{
                 }
             }
         },
-        "/v1/users/telegram_link": {
+        "/users/telegram_link": {
             "post": {
                 "security": [
                     {
@@ -999,7 +1071,7 @@ const docTemplate = `{
                 }
             }
         },
-        "/v1/users/{login}": {
+        "/users/{login}": {
             "get": {
                 "description": "Ищет пользователя по уникальному логину (никнейму) и возвращает его публичные данные",
                 "produces": [
@@ -1426,6 +1498,25 @@ const docTemplate = `{
                     "type": "string"
                 },
                 "title": {
+                    "type": "string"
+                }
+            }
+        },
+        "internal_transport_handlers_interaction.CreateLinkInviteDTO": {
+            "type": "object",
+            "properties": {
+                "expires_at": {
+                    "type": "string"
+                },
+                "invite_type": {
+                    "type": "string"
+                }
+            }
+        },
+        "internal_transport_handlers_interaction.JoinEventDTO": {
+            "type": "object",
+            "properties": {
+                "event_code": {
                     "type": "string"
                 }
             }
