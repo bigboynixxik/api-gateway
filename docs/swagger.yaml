@@ -350,73 +350,6 @@ paths:
       summary: Регистрация пользователя
       tags:
       - auth
-  /users/{login}:
-    get:
-      description: Ищет пользователя по уникальному логину (никнейму) и возвращает
-        его публичные данные
-      parameters:
-      - description: Логин пользователя (без @)
-        in: path
-        name: login
-        required: true
-        type: string
-      produces:
-      - application/json
-      responses:
-        "200":
-          description: Публичные данные пользователя
-          schema:
-            $ref: '#/definitions/api-gateway_pkg_api_auth_v1.UserInfo'
-        "400":
-          description: Логин не передан
-          schema:
-            $ref: '#/definitions/api-gateway_pkg_response.ErrorResponse'
-        "404":
-          description: Пользователь не найден
-          schema:
-            $ref: '#/definitions/api-gateway_pkg_response.ErrorResponse'
-        "500":
-          description: Внутренняя ошибка сервера
-          schema:
-            $ref: '#/definitions/api-gateway_pkg_response.ErrorResponse'
-      summary: Получение публичного профиля пользователя
-      tags:
-      - users
-  /users/info:
-    post:
-      consumes:
-      - application/json
-      description: Возвращает мапу с данными пользователей по переданному массиву
-        ID
-      parameters:
-      - description: Массив UUID пользователей
-        in: body
-        name: request
-        required: true
-        schema:
-          $ref: '#/definitions/internal_transport_handlers_authorization.GetUsersInfoDTO'
-      produces:
-      - application/json
-      responses:
-        "200":
-          description: Map пользователей (ключ - ID)
-          schema:
-            $ref: '#/definitions/api-gateway_pkg_api_auth_v1.GetUsersInfoResponse'
-        "400":
-          description: Неверный формат запроса
-          schema:
-            $ref: '#/definitions/api-gateway_pkg_response.ErrorResponse'
-        "404":
-          description: Пользователи не найдены
-          schema:
-            $ref: '#/definitions/api-gateway_pkg_response.ErrorResponse'
-        "500":
-          description: Внутренняя ошибка сервера
-          schema:
-            $ref: '#/definitions/api-gateway_pkg_response.ErrorResponse'
-      summary: Получение информации о группе пользователей
-      tags:
-      - users
   /v1/events:
     get:
       description: Получение списка ивентов. Поддерживает фильтрацию.
@@ -924,6 +857,73 @@ paths:
       summary: Список мероприятий пользователя
       tags:
       - events
+  /v1/users/{login}:
+    get:
+      description: Ищет пользователя по уникальному логину (никнейму) и возвращает
+        его публичные данные
+      parameters:
+      - description: Логин пользователя (без @)
+        in: path
+        name: login
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Публичные данные пользователя
+          schema:
+            $ref: '#/definitions/api-gateway_pkg_api_auth_v1.UserInfo'
+        "400":
+          description: Логин не передан
+          schema:
+            $ref: '#/definitions/api-gateway_pkg_response.ErrorResponse'
+        "404":
+          description: Пользователь не найден
+          schema:
+            $ref: '#/definitions/api-gateway_pkg_response.ErrorResponse'
+        "500":
+          description: Внутренняя ошибка сервера
+          schema:
+            $ref: '#/definitions/api-gateway_pkg_response.ErrorResponse'
+      summary: Получение публичного профиля пользователя
+      tags:
+      - users
+  /v1/users/info:
+    post:
+      consumes:
+      - application/json
+      description: Возвращает мапу с данными пользователей по переданному массиву
+        ID
+      parameters:
+      - description: Массив UUID пользователей
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/internal_transport_handlers_authorization.GetUsersInfoDTO'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Map пользователей (ключ - ID)
+          schema:
+            $ref: '#/definitions/api-gateway_pkg_api_auth_v1.GetUsersInfoResponse'
+        "400":
+          description: Неверный формат запроса
+          schema:
+            $ref: '#/definitions/api-gateway_pkg_response.ErrorResponse'
+        "404":
+          description: Пользователи не найдены
+          schema:
+            $ref: '#/definitions/api-gateway_pkg_response.ErrorResponse'
+        "500":
+          description: Внутренняя ошибка сервера
+          schema:
+            $ref: '#/definitions/api-gateway_pkg_response.ErrorResponse'
+      summary: Получение информации о группе пользователей
+      tags:
+      - users
   /v1/users/telegram_link:
     post:
       description: Генерирует уникальную ссылку с токеном для привязки аккаунта Telegram

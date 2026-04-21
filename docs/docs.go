@@ -119,105 +119,6 @@ const docTemplate = `{
                 }
             }
         },
-        "/users/info": {
-            "post": {
-                "description": "Возвращает мапу с данными пользователей по переданному массиву ID",
-                "consumes": [
-                    "application/json"
-                ],
-                "produces": [
-                    "application/json"
-                ],
-                "tags": [
-                    "users"
-                ],
-                "summary": "Получение информации о группе пользователей",
-                "parameters": [
-                    {
-                        "description": "Массив UUID пользователей",
-                        "name": "request",
-                        "in": "body",
-                        "required": true,
-                        "schema": {
-                            "$ref": "#/definitions/internal_transport_handlers_authorization.GetUsersInfoDTO"
-                        }
-                    }
-                ],
-                "responses": {
-                    "200": {
-                        "description": "Map пользователей (ключ - ID)",
-                        "schema": {
-                            "$ref": "#/definitions/api-gateway_pkg_api_auth_v1.GetUsersInfoResponse"
-                        }
-                    },
-                    "400": {
-                        "description": "Неверный формат запроса",
-                        "schema": {
-                            "$ref": "#/definitions/api-gateway_pkg_response.ErrorResponse"
-                        }
-                    },
-                    "404": {
-                        "description": "Пользователи не найдены",
-                        "schema": {
-                            "$ref": "#/definitions/api-gateway_pkg_response.ErrorResponse"
-                        }
-                    },
-                    "500": {
-                        "description": "Внутренняя ошибка сервера",
-                        "schema": {
-                            "$ref": "#/definitions/api-gateway_pkg_response.ErrorResponse"
-                        }
-                    }
-                }
-            }
-        },
-        "/users/{login}": {
-            "get": {
-                "description": "Ищет пользователя по уникальному логину (никнейму) и возвращает его публичные данные",
-                "produces": [
-                    "application/json"
-                ],
-                "tags": [
-                    "users"
-                ],
-                "summary": "Получение публичного профиля пользователя",
-                "parameters": [
-                    {
-                        "type": "string",
-                        "description": "Логин пользователя (без @)",
-                        "name": "login",
-                        "in": "path",
-                        "required": true
-                    }
-                ],
-                "responses": {
-                    "200": {
-                        "description": "Публичные данные пользователя",
-                        "schema": {
-                            "$ref": "#/definitions/api-gateway_pkg_api_auth_v1.UserInfo"
-                        }
-                    },
-                    "400": {
-                        "description": "Логин не передан",
-                        "schema": {
-                            "$ref": "#/definitions/api-gateway_pkg_response.ErrorResponse"
-                        }
-                    },
-                    "404": {
-                        "description": "Пользователь не найден",
-                        "schema": {
-                            "$ref": "#/definitions/api-gateway_pkg_response.ErrorResponse"
-                        }
-                    },
-                    "500": {
-                        "description": "Внутренняя ошибка сервера",
-                        "schema": {
-                            "$ref": "#/definitions/api-gateway_pkg_response.ErrorResponse"
-                        }
-                    }
-                }
-            }
-        },
         "/v1/events": {
             "get": {
                 "description": "Получение списка ивентов. Поддерживает фильтрацию.",
@@ -1009,6 +910,58 @@ const docTemplate = `{
                 }
             }
         },
+        "/v1/users/info": {
+            "post": {
+                "description": "Возвращает мапу с данными пользователей по переданному массиву ID",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "users"
+                ],
+                "summary": "Получение информации о группе пользователей",
+                "parameters": [
+                    {
+                        "description": "Массив UUID пользователей",
+                        "name": "request",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/internal_transport_handlers_authorization.GetUsersInfoDTO"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Map пользователей (ключ - ID)",
+                        "schema": {
+                            "$ref": "#/definitions/api-gateway_pkg_api_auth_v1.GetUsersInfoResponse"
+                        }
+                    },
+                    "400": {
+                        "description": "Неверный формат запроса",
+                        "schema": {
+                            "$ref": "#/definitions/api-gateway_pkg_response.ErrorResponse"
+                        }
+                    },
+                    "404": {
+                        "description": "Пользователи не найдены",
+                        "schema": {
+                            "$ref": "#/definitions/api-gateway_pkg_response.ErrorResponse"
+                        }
+                    },
+                    "500": {
+                        "description": "Внутренняя ошибка сервера",
+                        "schema": {
+                            "$ref": "#/definitions/api-gateway_pkg_response.ErrorResponse"
+                        }
+                    }
+                }
+            }
+        },
         "/v1/users/telegram_link": {
             "post": {
                 "security": [
@@ -1033,6 +986,53 @@ const docTemplate = `{
                     },
                     "401": {
                         "description": "Пользователь не авторизован",
+                        "schema": {
+                            "$ref": "#/definitions/api-gateway_pkg_response.ErrorResponse"
+                        }
+                    },
+                    "500": {
+                        "description": "Внутренняя ошибка сервера",
+                        "schema": {
+                            "$ref": "#/definitions/api-gateway_pkg_response.ErrorResponse"
+                        }
+                    }
+                }
+            }
+        },
+        "/v1/users/{login}": {
+            "get": {
+                "description": "Ищет пользователя по уникальному логину (никнейму) и возвращает его публичные данные",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "users"
+                ],
+                "summary": "Получение публичного профиля пользователя",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Логин пользователя (без @)",
+                        "name": "login",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Публичные данные пользователя",
+                        "schema": {
+                            "$ref": "#/definitions/api-gateway_pkg_api_auth_v1.UserInfo"
+                        }
+                    },
+                    "400": {
+                        "description": "Логин не передан",
+                        "schema": {
+                            "$ref": "#/definitions/api-gateway_pkg_response.ErrorResponse"
+                        }
+                    },
+                    "404": {
+                        "description": "Пользователь не найден",
                         "schema": {
                             "$ref": "#/definitions/api-gateway_pkg_response.ErrorResponse"
                         }

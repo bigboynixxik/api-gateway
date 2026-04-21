@@ -86,8 +86,8 @@ func NewApp(_ context.Context) (*App, error) {
 
 	mux.HandleFunc("POST /login", authHandler.Login)
 	mux.HandleFunc("POST /register", authHandler.Register)
-	mux.HandleFunc("GET /users/{login}", authHandler.GetUserInfoByLogin)
-	mux.HandleFunc("POST /users/info", authHandler.GetUsersInfo)
+	mux.HandleFunc("GET /v1/users/{login}", authHandler.GetUserInfoByLogin)
+	mux.HandleFunc("POST /v1/users/info", authHandler.GetUsersInfo)
 
 	mux.HandleFunc("GET /v1/events/my", authMW.AuthMiddleware(eventHandler.ListUserEvents))
 	mux.HandleFunc("POST /v1/events", authMW.AuthMiddleware(eventHandler.CreateEvent))
