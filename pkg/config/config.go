@@ -13,6 +13,7 @@ type Config struct {
 	EventServiceAddr string `env:"EVENT_SERVICE_ADDR" envDefault:"localhost:50051"`
 	AuthServiceAddr  string `env:"AUTH_SERVICE_ADDR" envDefault:"localhost:50052"`
 	JWTSecret        string `env:"JWT_SECRET"`
+	RedisAddr        string `env:"REDIS_ADDR"`
 }
 
 func LoadConfig(path string) (*Config, error) {

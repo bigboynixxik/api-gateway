@@ -2,6 +2,7 @@ package event
 
 import (
 	"encoding/json"
+	"fmt"
 	"log/slog"
 	"net/http"
 	"time"
@@ -12,17 +13,20 @@ import (
 	"api-gateway/pkg/response"
 
 	"github.com/google/uuid"
+	"github.com/redis/go-redis/v9"
 	"google.golang.org/grpc/metadata"
 	"google.golang.org/protobuf/types/known/timestamppb"
 )
 
 type HandlerEvent struct {
 	eventClient api.EventServiceClient
+	rdb         *redis.Client
 }
 
-func NewHandlerEvent(eventClient api.EventServiceClient) *HandlerEvent {
+func NewHandlerEvent(eventClient api.EventServiceClient, rdb *redis.Client) *HandlerEvent {
 	return &HandlerEvent{
 		eventClient: eventClient,
+		rdb:         rdb,
 	}
 }
 
@@ -271,48 +275,56 @@ func (h *HandlerEvent) CancelEvent(w http.ResponseWriter, r *http.Request) {
 func (h *HandlerEvent) ListEvents(w http.ResponseWriter, r *http.Request) {
 	l := logger.FromContext(r.Context())
 	var grpcReq api.ListEventsRequest
+
 	title := r.URL.Query().Get("title")
+	description := r.URL.Query().Get("description")
+	startsAfter := r.URL.Query().Get("start_after")
+	startsBefore := r.URL.Query().Get("starts_before")
+	locationName := r.URL.Query().Get("location_name")
+
 	if title != "" {
 		grpcReq.Title = &title
 	}
-	description := r.URL.Query().Get("description")
 	if description != "" {
 		grpcReq.Description = &description
 	}
-	startsAfter := r.URL.Query().Get("start_after")
 	if startsAfter != "" {
-		startAfterTime, err := time.Parse(time.RFC3339, startsAfter)
-		if err != nil {
-			l.Error("event.ListEvents start_after error",
-				slog.String("error", err.Error()))
-			response.Error(w, http.StatusBadRequest, "INTERNAL_ERROR", "internal error")
-			return
-		}
-		grpcReq.StartsAfter = timestamppb.New(startAfterTime)
+		t, _ := time.Parse(time.RFC3339, startsAfter)
+		grpcReq.StartsAfter = timestamppb.New(t)
 	}
-	startsBefore := r.URL.Query().Get("starts_before")
 	if startsBefore != "" {
-		startsBeforeTime, err := time.Parse(time.RFC3339, startsBefore)
-		if err != nil {
-			l.Error("event.ListEvents end_after error",
-				slog.String("error", err.Error()))
-			response.Error(w, http.StatusInternalServerError, "INTERNAL_ERROR", "internal error")
-			return
-		}
-		grpcReq.StartsBefore = timestamppb.New(startsBeforeTime)
+		t, _ := time.Parse(time.RFC3339, startsBefore)
+		grpcReq.StartsBefore = timestamppb.New(t)
 	}
-	locationName := r.URL.Query().Get("location_name")
 	if locationName != "" {
 		grpcReq.LocationName = &locationName
 	}
 
+	cacheKey := fmt.Sprintf("events:list:t=%s:d=%s:l=%s:sa=%s:sb=%s",
+		title, description, locationName, startsAfter, startsBefore)
+
+	cachedData, err := h.rdb.Get(r.Context(), cacheKey).Bytes()
+	if err == nil {
+		l.Info("ListEvents cache hit", slog.String("key", cacheKey))
+		w.Header().Set("Content-Type", "application/json")
+		w.Header().Set("X-Cache", "HIT") // Полезно для дебага на защите
+		w.Write(cachedData)
+		return
+	}
+
+	l.Info("ListEvents cache miss, calling gRPC", slog.String("key", cacheKey))
 	resp, err := h.eventClient.ListEvents(r.Context(), &grpcReq)
 	if err != nil {
-		l.Error("event.ListEvents internal error",
-			slog.String("error", err.Error()))
+		l.Error("event.ListEvents internal error", slog.String("error", err.Error()))
 		response.Error(w, http.StatusInternalServerError, "INTERNAL_ERROR", "internal error")
 		return
 	}
-	// TODO: Из списка информации об ивентах сделать красивый список с данными
+
+	jsonData, err := json.Marshal(resp)
+	if err == nil {
+		h.rdb.Set(r.Context(), cacheKey, jsonData, 30*time.Second)
+	}
+
+	w.Header().Set("X-Cache", "MISS")
 	response.JSON(w, http.StatusOK, resp)
 }

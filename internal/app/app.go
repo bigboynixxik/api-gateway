@@ -26,6 +26,7 @@ import (
 	"api-gateway/pkg/config"
 	"api-gateway/pkg/logger"
 
+	"github.com/redis/go-redis/v9"
 	googleGrpc "google.golang.org/grpc"
 	"google.golang.org/grpc/credentials/insecure"
 )
@@ -39,16 +40,19 @@ type App struct {
 	httpPort         string
 	logs             *slog.Logger
 	closer           *closer.Closer
+	redisClient      *redis.Client
 }
 
-func NewApp(_ context.Context) (*App, error) {
+func NewApp(ctx context.Context) (*App, error) {
 	cfg, err := config.LoadConfig(".env")
 	if err != nil {
 		return nil, fmt.Errorf("app.New failed to load config: %w", err)
 	}
 
 	logger.Setup(cfg.AppEnv)
+
 	logs := logger.With("service", "api-gateway")
+	ctx = logger.WithContext(ctx, logs)
 	logs.Info("initializing layers",
 		"env", cfg.AppEnv,
 		"HTTPPort", cfg.HTTPPort,
@@ -60,6 +64,15 @@ func NewApp(_ context.Context) (*App, error) {
 		googleGrpc.WithUnaryInterceptor(interceptor.LoggingClientInterceptor(logs)))
 	if err != nil {
 		return nil, fmt.Errorf("app.New unable to connect to gRPC server: %w", err)
+	}
+
+	rdb := redis.NewClient(&redis.Options{
+		Addr: cfg.RedisAddr,
+	})
+
+	err = rdb.Ping(ctx).Err()
+	if err != nil {
+		return nil, fmt.Errorf("failed to connect to redis: %w", err)
 	}
 
 	eventClient := api.NewEventServiceClient(eventConn)
@@ -74,7 +87,7 @@ func NewApp(_ context.Context) (*App, error) {
 
 	authMW := middleware.NewAuthMiddleware(authClient, cfg.JWTSecret)
 
-	eventHandler := event.NewHandlerEvent(eventClient)
+	eventHandler := event.NewHandlerEvent(eventClient, rdb)
 	authHandler := authorization.NewAuthHandler(authClient)
 	interactionHandler := interaction.NewHandlerInteraction(eventClient)
 	participantsHandler := participants.NewHandlerParticipant(eventClient, authClient)
@@ -130,6 +143,11 @@ func NewApp(_ context.Context) (*App, error) {
 	cl.Add(func(ctx context.Context) error {
 		slog.Info("closing http server")
 		return httpServer.Shutdown(ctx)
+	})
+
+	cl.Add(func(ctx context.Context) error {
+		slog.Info("closin redis connection")
+		return rdb.Close()
 	})
 
 	return &App{
