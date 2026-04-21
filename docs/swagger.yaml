@@ -622,7 +622,7 @@ paths:
       - BearerAuth: []
       summary: Получить чеклист мероприятия
       tags:
-      - interaction
+      - checklist
     post:
       consumes:
       - application/json
@@ -661,7 +661,7 @@ paths:
       - BearerAuth: []
       summary: Добавить предмет в чеклист ивента
       tags:
-      - interaction
+      - checklist
   /v1/events/{event_id}/checklist/{item_id}:
     delete:
       consumes:
@@ -700,7 +700,7 @@ paths:
       - BearerAuth: []
       summary: Удалить предмет из чеклиста
       tags:
-      - interaction
+      - checklist
   /v1/events/{event_id}/checklist/{item_id}/purchase:
     patch:
       consumes:
@@ -747,7 +747,7 @@ paths:
       - BearerAuth: []
       summary: Пометить предмет как купленный в чеклисте
       tags:
-      - interaction
+      - checklist
   /v1/events/{event_id}/invites:
     post:
       consumes:

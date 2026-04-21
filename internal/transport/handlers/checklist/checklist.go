@@ -25,7 +25,7 @@ func NewHandlerChecklist(eventClient api.EventServiceClient) *HandlerChecklist {
 
 // GetEventChecklist godoc
 // @Summary Получить чеклист мероприятия
-// @Tags interaction
+// @Tags checklist
 // @Accept json
 // @Produce json
 // @Param event_id path string true "ID мероприятия"
@@ -73,7 +73,7 @@ type AddChecklistDTO struct {
 
 // AddChecklistItem godoc
 // @Summary Добавить предмет в чеклист ивента
-// @Tags interaction
+// @Tags checklist
 // @Accept json
 // @Produce json
 // @Param event_id path string true "ID мероприятия"
@@ -125,7 +125,7 @@ func (h *HandlerChecklist) AddChecklistItem(w http.ResponseWriter, r *http.Reque
 
 // RemoveChecklistItem godoc
 // @Summary Удалить предмет из чеклиста
-// @Tags interaction
+// @Tags checklist
 // @Accept json
 // @Produce json
 // @Param event_id path string true "ID мероприятия"
@@ -180,7 +180,7 @@ type MarkItemDTO struct {
 // MarkItemPurchased godoc
 // @Summary Пометить предмет как купленный в чеклисте
 // @Description Также можно добавить id ответственного за покупку (buyer_id), а также передать стату куплено/не куплно
-// @Tags interaction
+// @Tags checklist
 // @Accept json
 // @Produce json
 // @Param event_id path string true "ID мероприятия"

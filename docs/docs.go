@@ -588,7 +588,7 @@ const docTemplate = `{
                     "application/json"
                 ],
                 "tags": [
-                    "interaction"
+                    "checklist"
                 ],
                 "summary": "Получить чеклист мероприятия",
                 "parameters": [
@@ -640,7 +640,7 @@ const docTemplate = `{
                     "application/json"
                 ],
                 "tags": [
-                    "interaction"
+                    "checklist"
                 ],
                 "summary": "Добавить предмет в чеклист ивента",
                 "parameters": [
@@ -703,7 +703,7 @@ const docTemplate = `{
                     "application/json"
                 ],
                 "tags": [
-                    "interaction"
+                    "checklist"
                 ],
                 "summary": "Удалить предмет из чеклиста",
                 "parameters": [
@@ -765,7 +765,7 @@ const docTemplate = `{
                     "application/json"
                 ],
                 "tags": [
-                    "interaction"
+                    "checklist"
                 ],
                 "summary": "Пометить предмет как купленный в чеклисте",
                 "parameters": [

@@ -11,6 +11,7 @@ import (
 	"api-gateway/pkg/logger"
 	"api-gateway/pkg/response"
 
+	"github.com/google/uuid"
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"
 )
@@ -240,12 +241,13 @@ type GetTelegramResponse struct {
 func (ah *AuthHandler) GetTelegramLink(w http.ResponseWriter, r *http.Request) {
 	l := logger.FromContext(r.Context())
 
-	userId, ok := r.Context().Value(middleware.UserIDKey).(string)
+	userIdUUID, ok := r.Context().Value(middleware.UserIDKey).(uuid.UUID)
 	if !ok {
 		l.Error("authHandler.GetTelegramLink user not found in context")
 		response.Error(w, http.StatusUnauthorized, "UNAUTHORIZED", "unauthorized")
 		return
 	}
+	userId := userIdUUID.String()
 	grpcReq := auth.GenerateTgLinkRequest{
 		UserId: userId,
 	}
